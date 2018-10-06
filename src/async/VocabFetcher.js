@@ -23,16 +23,14 @@ type JishoResponse = {
 export const fetchVocab = async (
   keyword: string
 ): Promise<Array<VocabEntry>> => {
-  const _corsProxyUrl =
-    /*'https://jwalk.herokuapp.com/?q=';*/ 'http://cors-proxy.htmldriven.com/?url=';
   const _apiUrlHead = 'http://jisho.org/api/v1/search/words?keyword="';
   const _apiUrlTail = '"';
 
   try {
-    const response = await fetch(
-      _corsProxyUrl + _apiUrlHead + keyword + _apiUrlTail
-    );
+    const response = await fetch(_apiUrlHead + keyword + _apiUrlTail);
     const responseJson = await response.json();
+    console.log(responseJson);
+    // return [];
     const results: JishoResponse = JSON.parse(responseJson.body);
     console.log(results);
 

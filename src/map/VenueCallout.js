@@ -35,12 +35,22 @@ class VenueCallout extends React.Component<Props, State> {
     }
   }
 
-  // TODO: support vocab
   render() {
+    const { store } = this.props;
+    const vocabById = store.get('vocabById');
+
     const venueNameText = <Text style={styles.name}>{this._venue.name}</Text>;
     const categoryText = (
       <Text style={styles.name}>{this._venue.category}</Text>
     );
+
+    let vocabReading = null;
+    if (this._venue.vocab) {
+      const vocab = vocabById.get(this._venue.vocab);
+      if (vocab) {
+        vocabReading = vocab.reading;
+      }
+    }
 
     // TODO: callout button
 
@@ -50,6 +60,7 @@ class VenueCallout extends React.Component<Props, State> {
           <View style={styles.bubble}>
             <Text style={styles.venue}>{venueNameText}</Text>
             <Text style={styles.category}>{categoryText}</Text>
+            <Text style={styles.kana}>{vocabReading}</Text>
           </View>
           <View style={styles.arrowBorder} />
           <View style={styles.arrow} />
@@ -150,7 +161,7 @@ const styles = StyleSheet.create({
     color: '#ff8859',
   },
   kana: {
-    fontFamily: 'Toppan Bunkyu Midashi Gothic',
+    fontFamily: 'toppan-bunkyu-midashi-gothic',
     color: 'white',
     paddingTop: 15,
     width: 180,

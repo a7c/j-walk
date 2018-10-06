@@ -17,6 +17,7 @@ export default class App extends React.Component<Props> {
   componentDidMount() {
     Font.loadAsync({
       krungthep: require('assets/fonts/krungthep-webfont.ttf'),
+      'toppan-bunkyu-midashi-gothic': require('assets/fonts/ToppanBunkyuMidashiGothic-ExtraBold.otf'),
     });
   }
 

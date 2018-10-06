@@ -9,6 +9,7 @@ import { VenueState } from 'src/entities/Types';
 
 type FoursquareCategory = {
   name: string,
+  shortName: string,
 };
 type FoursquareVenue = {
   id: string,
@@ -68,9 +69,9 @@ const _processVenue = (venueData: FoursquareVenue): ?Venue => {
     name: venueData.name,
     lat: venueData.location.lat,
     lng: venueData.location.lng,
-    // TODO: use short name?
-    category: venueData.categories[0].name,
+    category: venueData.categories[0].shortName.toLowerCase(),
     state: VenueState.HIDDEN,
+    vocab: null,
   };
   return venue;
 };

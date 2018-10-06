@@ -16,6 +16,7 @@ export type Venue = {|
   lng: number,
   category: string,
   state: VenueStateType,
+  vocab: ?string, // vocab id
 |};
 
 export type VocabEntry = {|

@@ -8,6 +8,7 @@ import type {
   NavigationState,
 } from 'react-navigation';
 
+import type { VocabEntry } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView } from 'expo';
@@ -23,7 +24,10 @@ import {
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
-import { fetchVocab } from 'src/async/VocabFetcher';
+import {
+  generateKeywordsForVenueCategory,
+  generateVocabForKeyword,
+} from 'src/entities/VocabEngine';
 import VenueMarker from 'src/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
 
@@ -77,8 +81,6 @@ class MapScreen extends React.Component<Props, State> {
       },
       isLoading: false,
     };
-
-    fetchVocab('house');
   }
 
   componentDidMount() {
@@ -98,18 +100,55 @@ class MapScreen extends React.Component<Props, State> {
     });
     const venues = await fetchVenues(region.latitude, region.longitude, 250);
     const venuesById = new Map(store.get('venuesById'));
-    let nearbyVenues = [];
+    let nearbyVenues = new Set();
     for (const venue of venues) {
       if (!venuesById.has(venue.id)) {
         venuesById.set(venue.id, venue);
       }
-      nearbyVenues.push(venue.id);
+      nearbyVenues.add(venue.id);
     }
     store.set('venuesById')(venuesById);
     store.set('nearbyVenues')(nearbyVenues);
     this.setState({
       isLoading: false,
     });
+
+    const vocabById = new Map(store.get('vocabById'));
+    const vocabFromKeyword = new Map(store.get('vocabFromKeyword'));
+    for (const venue of venues) {
+      const keywords = await generateKeywordsForVenueCategory(
+        venuesById,
+        venue.id
+      );
+      for (const keyword of keywords) {
+        console.log('keyword: ' + keyword);
+        let vocabCandidates = vocabFromKeyword.get(keyword);
+        if (!vocabCandidates) {
+          const vocabEntries: Array<VocabEntry> = await generateVocabForKeyword(
+            keyword
+          );
+          for (const vocabEntry of vocabEntries) {
+            if (!vocabById.has(vocabEntry.id)) {
+              vocabById.set(vocabEntry.id, vocabEntry);
+            }
+          }
+          vocabCandidates = vocabEntries.map(entry => entry.id);
+
+          vocabFromKeyword.set(keyword, vocabCandidates);
+        }
+        console.log(vocabCandidates);
+
+        const vocabForVenue = vocabCandidates.pop();
+        if (!vocabForVenue) {
+          continue;
+        }
+        venue.vocab = vocabForVenue;
+        break;
+      }
+    }
+    store.set('vocabById')(vocabById);
+    store.set('vocabFromKeyword')(vocabFromKeyword);
+    console.log(venues);
   }
 
   _onRegionChangeComplete = region => {
@@ -127,9 +166,9 @@ class MapScreen extends React.Component<Props, State> {
           region={region}
           onRegionChangeComplete={this._onRegionChangeComplete}
         >
-          {store
-            .get('nearbyVenues')
-            .map(venueId => <VenueMarker venueId={venueId} key={venueId} />)}
+          {Array.from(store.get('nearbyVenues')).map(venueId => (
+            <VenueMarker venueId={venueId} key={venueId} />
+          ))}
         </MapView>
         <View style={styles.header}>
           <TouchableOpacity
