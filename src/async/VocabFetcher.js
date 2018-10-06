@@ -28,13 +28,10 @@ export const fetchVocab = async (
 
   try {
     const response = await fetch(_apiUrlHead + keyword + _apiUrlTail);
-    const responseJson = await response.json();
-    console.log(responseJson);
-    // return [];
-    const results: JishoResponse = JSON.parse(responseJson.body);
-    console.log(results);
+    const responseJson: JishoResponse = await response.json();
+    // TODO: error handling?
 
-    const vocabEntries: Array<VocabEntry> = results.data.reduce(
+    const vocabEntries: Array<VocabEntry> = responseJson.data.reduce(
       (acc, wordData) => {
         const vocabEntry = _processVocabWord(wordData);
         if (vocabEntry) {
