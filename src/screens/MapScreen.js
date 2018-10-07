@@ -66,7 +66,7 @@ type State = {
 class MapScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Map',
-    header: null,
+    header: { visible:false },
     gesturesEnabled: false,
   };
 
