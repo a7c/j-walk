@@ -37,6 +37,7 @@ const AppNavigator = createStackNavigator(
   },
   {
     cardStyle: { backgroundColor: '#ff8859' },
+    headerMode: "none",
     initialRouteName: 'Home',
   }
 );
