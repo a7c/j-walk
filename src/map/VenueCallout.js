@@ -7,7 +7,7 @@ import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView } from 'expo';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 import { withStore } from 'src/undux/GameStore';
 
@@ -34,6 +34,24 @@ class VenueCallout extends React.Component<Props, State> {
       );
     }
   }
+
+  _onLearnPressed = () => {
+    const { store } = this.props;
+    const vocabById = store.get('vocabById');
+    if (!this._venue.vocab) {
+      throw new Error("Cannot learn if there's no vocab!");
+    }
+    const vocab = vocabById.get(this._venue.vocab);
+    if (!vocab) {
+      throw new Error(
+        "Tried to learn a vocab word but the corresponding ID doesn't exist!"
+      );
+    }
+
+    const learnedVocab = store.get('learnedVocab');
+    const newLearnedVocab = new Set(learnedVocab).add(vocab.id);
+    store.set('learnedVocab')(newLearnedVocab);
+  };
 
   render() {
     const { store } = this.props;
@@ -65,6 +83,8 @@ class VenueCallout extends React.Component<Props, State> {
           <View style={styles.arrowBorder} />
           <View style={styles.arrow} />
         </View>
+        {/* TODO: factor out into own component? */}
+        <Button onPress={this._onLearnPressed} title={'Learn'} />
       </MapView.Callout>
     );
   }
