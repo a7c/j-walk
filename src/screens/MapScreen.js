@@ -11,7 +11,7 @@ import type {
 import type { VocabEntry } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 
-import { MapView } from 'expo';
+import { MapView, Location, Permissions } from 'expo';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -61,6 +61,13 @@ type State = {
     longitudeDelta: number,
   },
   isLoading: boolean,
+  location: null,
+  errorMessage: string,
+  playerPos: {
+    latitude: number,
+    longitude: number
+  },
+  milad: null
 };
 
 class MapScreen extends React.Component<Props, State> {
@@ -80,16 +87,40 @@ class MapScreen extends React.Component<Props, State> {
         longitudeDelta: 0.00131,
       },
       isLoading: false,
+      location: null,
+      errorMessage: "",
+      playerPos: {
+        latitude: 0,
+        longitude: 0
+      },
+      milad: null
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     try {
       this._populateMap();
+      this._getLocationAsync();
     } catch (error) {
       console.error(error);
     }
   }
+
+  componentDidMount() {
+    let testlocation = Location.watchPositionAsync({
+      enableHighAccuracy: true,
+      timeInterval: 1000,
+      distanceInterval: 5
+    }, (loc) => {
+      if(loc.timestamp) {
+        this.setState({
+          milad:loc
+        })
+        console.log("STATE CHANGE")
+        console.log(this.state.milad);
+      }
+      });
+    }
 
   async _populateMap() {
     const { store } = this.props;
@@ -148,11 +179,30 @@ class MapScreen extends React.Component<Props, State> {
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
-    console.log(venues);
+    // console.log(venues);
   }
 
   _onRegionChangeComplete = region => {
     this.setState({ region });
+  };
+
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    console.log("MANGO: " + JSON.stringify(location));
+    this.setState({ location });
+    this.setState({
+      playerPos: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      }
+    })
+    // console.log("MANGO: " + JSON.stringify(this.state.playerPos))
   };
 
   render() {
@@ -169,6 +219,19 @@ class MapScreen extends React.Component<Props, State> {
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker venueId={venueId} key={venueId} />
           ))}
+          <MapView.Marker coordinate={this.state.playerPos}
+                  pinColor={"green"}
+          >
+            {/* <Image
+              source={require('assets/images/mon.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width:  40,
+                height: 40,
+                zIndex: 0,
+              }}
+            /> */}
+          </MapView.Marker>
         </MapView>
         <View style={styles.header}>
           <TouchableOpacity
