@@ -48,6 +48,8 @@ const getDistanceFromLatLng = (coords1, coords2) => {
   return 12742 * Math.asin(Math.sqrt(a)) * 1000; // 2 * R; R = 6371 km
 };
 
+const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 };
+
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
@@ -67,7 +69,7 @@ type State = {
     latitude: number,
     longitude: number
   },
-  milad: null
+  playerHeading: number
 };
 
 class MapScreen extends React.Component<Props, State> {
@@ -93,34 +95,40 @@ class MapScreen extends React.Component<Props, State> {
         latitude: 0,
         longitude: 0
       },
-      milad: null
+      playerHeading: 0
     };
   }
 
   componentWillMount() {
     try {
       this._populateMap();
-      this._getLocationAsync();
+      // this._getLocationAsync();
+      Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+      Location.watchHeadingAsync(this.headingChanged)
     } catch (error) {
       console.error(error);
     }
   }
 
-  componentDidMount() {
-    let testlocation = Location.watchPositionAsync({
-      enableHighAccuracy: true,
-      timeInterval: 1000,
-      distanceInterval: 5
-    }, (loc) => {
-      if(loc.timestamp) {
-        this.setState({
-          milad:loc
-        })
-        console.log("STATE CHANGE")
-        console.log(this.state.milad);
+  locationChanged = (location) => {
+    this.setState({location});
+    this.setState({
+      playerPos: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
       }
-      });
-    }
+    })
+    console.log("UPDATE STATE");
+    console.log(this.state.playerPos);
+  }
+
+  headingChanged = (heading) => {
+    this.setState({
+      playerHeading: heading.magHeading
+    })
+    console.log("UPDATE HEADING");
+    console.log(this.state.playerHeading);
+  }
 
   async _populateMap() {
     const { store } = this.props;
@@ -186,24 +194,38 @@ class MapScreen extends React.Component<Props, State> {
     this.setState({ region });
   };
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      this.setState({
-        errorMessage: 'Permission to access location was denied',
-      });
-    }
-    let location = await Location.getCurrentPositionAsync({});
-    console.log("MANGO: " + JSON.stringify(location));
-    this.setState({ location });
-    this.setState({
-      playerPos: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      }
-    })
-    // console.log("MANGO: " + JSON.stringify(this.state.playerPos))
-  };
+  // _getLocationAsync = async () => {
+  //   let { status } = await Permissions.askAsync(Permissions.LOCATION);
+  //   if (status !== 'granted') {
+  //     this.setState({
+  //       errorMessage: 'Permission to access location was denied',
+  //     });
+  //   }
+  //   let location = await Location.getCurrentPositionAsync({});
+  //   this.setState({ location });
+  //   this.setState({
+  //     playerPos: {
+  //       latitude: location.coords.latitude,
+  //       longitude: location.coords.longitude
+  //     }
+  //   })
+  //   console.log("INITIAL STATE");
+  //   console.log(this.state.location);
+  // };
+  //
+  // _updateLocationAsync = async () => {
+  //   let location = await Location.watchPositionAsync({
+  //     enableHighAccuracy: true,
+  //     timeInterval: 5000,
+  //     distanceInterval: 5
+  //   }, (loc) => {
+  //     this.setState({
+  //       location: loc
+  //     })
+  //     console.log("STATE CHANGE")
+  //     console.log(this.state.location);
+  //   });
+  // };
 
   render() {
     const { navigation, store } = this.props;
@@ -219,18 +241,29 @@ class MapScreen extends React.Component<Props, State> {
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker venueId={venueId} key={venueId} />
           ))}
-          <MapView.Marker coordinate={this.state.playerPos}
-                  pinColor={"green"}
-          >
-            {/* <Image
-              source={require('assets/images/mon.png')}
+          <MapView.Marker coordinate={this.state.playerPos}>
+            <Image
+              source={require('assets/images/map/mon.png')}
               resizeMode={Image.resizeMode.cover}
               style={{
-                width:  40,
+                width: 47,
                 height: 40,
-                zIndex: 0,
+                zIndex: 1,
               }}
-            /> */}
+            />
+            <Image
+              source={require('assets/images/map/bearingV2.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 90,
+                height: 90,
+                zIndex: 0,
+                position: "absolute",
+                top: -22,
+                left: -21,
+                transform: [{ rotate: String(this.state.playerHeading)+"deg"}]
+              }}
+            />
           </MapView.Marker>
         </MapView>
         <View style={styles.header}>
