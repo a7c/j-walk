@@ -9,6 +9,7 @@ import { MapView } from 'expo';
 import React from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 
+import { VenueState } from 'src/entities/Types';
 import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
@@ -51,6 +52,8 @@ class VenueCallout extends React.Component<Props, State> {
     const learnedVocab = store.get('learnedVocab');
     const newLearnedVocab = new Set(learnedVocab).add(vocab.id);
     store.set('learnedVocab')(newLearnedVocab);
+    this._venue.state = VenueState.HIDDEN;
+    store.set('venuesById')(new Map(store.get('venuesById')));
   };
 
   render() {

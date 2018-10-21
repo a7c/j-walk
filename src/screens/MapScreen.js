@@ -24,6 +24,7 @@ import {
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
+import { VenueState } from 'src/entities/Types';
 import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
@@ -66,7 +67,7 @@ type State = {
 class MapScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Map',
-    header: { visible:false },
+    header: { visible: false },
     gesturesEnabled: false,
   };
 
@@ -143,11 +144,14 @@ class MapScreen extends React.Component<Props, State> {
           continue;
         }
         venue.vocab = vocabForVenue;
+        venue.state = VenueState.LEARN;
         break;
       }
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
+    // Set the venues again to make sure map gets re-rendered
+    store.set('venuesById')(new Map(venuesById));
     console.log(venues);
   }
 

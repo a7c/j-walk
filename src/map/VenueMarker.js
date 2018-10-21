@@ -9,6 +9,7 @@ import { MapView } from 'expo';
 import React from 'react';
 import { Image } from 'react-native';
 
+import { VenueState } from 'src/entities/Types';
 import VenueCallout from 'src/map/VenueCallout';
 import { withStore } from 'src/undux/GameStore';
 
@@ -45,10 +46,14 @@ class VenueMarker extends React.Component<Props, State> {
   }
 
   render() {
+    if (this._venue.state === VenueState.HIDDEN) {
+      return null;
+    }
+
     const imageIndex = parseInt(this.props.venueId, 16) % sushiIcons.length;
 
-    let width = 64;
-    let height = 64;
+    const width = 64;
+    const height = 64;
 
     return (
       // TODO: replace with image
