@@ -7,9 +7,10 @@ import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView } from 'expo';
 import React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 
 import { VenueState } from 'src/entities/Types';
+import { makeJpFormatter } from 'src/jp/Util';
 import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
@@ -54,6 +55,10 @@ class VenueCallout extends React.Component<Props, State> {
     store.set('learnedVocab')(newLearnedVocab);
     this._venue.state = VenueState.HIDDEN;
     store.set('venuesById')(new Map(store.get('venuesById')));
+
+    const formatJp = makeJpFormatter(store.get('jpDisplayStyle'));
+    const vocabText = `${formatJp(vocab.reading)}\n${vocab.english}`;
+    Alert.alert(`Learned a new word!`, `${vocabText}`);
   };
 
   render() {

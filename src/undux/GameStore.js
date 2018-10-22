@@ -3,8 +3,10 @@
  */
 
 import type { Venue, VocabEntry } from 'src/entities/Types';
+import type { JpDisplayStyleType } from 'src/jp/Types';
 import type { Effects, Store } from 'undux';
 
+import { JpDisplayStyle } from 'src/jp/Types';
 import { createConnectedStore } from 'undux';
 
 type State = {|
@@ -17,6 +19,8 @@ type State = {|
 
   learnedVocab: Set<string>, // vocab ids
   nearbyVenues: Set<string>, // venue ids
+
+  jpDisplayStyle: JpDisplayStyleType,
 |};
 
 const initialState: State = {
@@ -27,6 +31,8 @@ const initialState: State = {
 
   learnedVocab: new Set(),
   nearbyVenues: new Set(),
+
+  jpDisplayStyle: JpDisplayStyle.KANA,
 };
 
 const { withStore, Container } = createConnectedStore(initialState);
