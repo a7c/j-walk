@@ -145,13 +145,14 @@ class MapScreen extends React.Component<Props, State> {
         }
         venue.vocab = vocabForVenue;
         venue.state = VenueState.LEARN;
+        // Set the venues again here to make sure map gets re-rendered
+        // after each venue is ready
+        store.set('venuesById')(new Map(venuesById));
         break;
       }
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
-    // Set the venues again to make sure map gets re-rendered
-    store.set('venuesById')(new Map(venuesById));
     console.log(venues);
   }
 
