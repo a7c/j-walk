@@ -97,14 +97,16 @@ class MapScreen extends React.Component<Props, State> {
       },
       playerHeading: 0
     };
+    Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+    Location.watchHeadingAsync(this.headingChanged);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     try {
       this._populateMap();
-      // this._getLocationAsync();
-      Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
-      Location.watchHeadingAsync(this.headingChanged)
+      this._getLocationAsync();
+      // Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+      // Location.watchHeadingAsync(this.headingChanged);
     } catch (error) {
       console.error(error);
     }
@@ -194,24 +196,24 @@ class MapScreen extends React.Component<Props, State> {
     this.setState({ region });
   };
 
-  // _getLocationAsync = async () => {
-  //   let { status } = await Permissions.askAsync(Permissions.LOCATION);
-  //   if (status !== 'granted') {
-  //     this.setState({
-  //       errorMessage: 'Permission to access location was denied',
-  //     });
-  //   }
-  //   let location = await Location.getCurrentPositionAsync({});
-  //   this.setState({ location });
-  //   this.setState({
-  //     playerPos: {
-  //       latitude: location.coords.latitude,
-  //       longitude: location.coords.longitude
-  //     }
-  //   })
-  //   console.log("INITIAL STATE");
-  //   console.log(this.state.location);
-  // };
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    this.setState({ location });
+    this.setState({
+      playerPos: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      }
+    })
+    console.log("INITIAL STATE");
+    console.log(this.state.location);
+  };
   //
   // _updateLocationAsync = async () => {
   //   let location = await Location.watchPositionAsync({
@@ -259,11 +261,24 @@ class MapScreen extends React.Component<Props, State> {
                 height: 90,
                 zIndex: 0,
                 position: "absolute",
-                top: -22,
+                top: -24,
                 left: -21,
                 transform: [{ rotate: String(this.state.playerHeading)+"deg"}]
               }}
             />
+            {/* <Image
+              source={require('assets/images/map/bearing.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 80,
+                height: 90,
+                zIndex: 0,
+                position: "absolute",
+                top: -22,
+                left: -21,
+                transform: [{ rotate: String(this.state.playerHeading)+"deg"}],
+              }}
+            /> */}
           </MapView.Marker>
         </MapView>
         <View style={styles.header}>
