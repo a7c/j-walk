@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 15,
     width: 210,
-    height: 150,
+    height: 170,
     zIndex: 1,
   },
   bubbleLOCKED: {
@@ -130,10 +130,13 @@ const styles = StyleSheet.create({
   },
   venue: {
     fontFamily: 'krungthep',
+    marginTop: 15,
     width: 180,
     height: 25,
     textAlign: 'center',
     backgroundColor: 'white',
+    flexGrow: 0.2,
+    flex: 0
   },
   venueLOCKED: {
     fontFamily: 'krungthep',

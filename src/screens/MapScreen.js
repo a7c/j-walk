@@ -289,7 +289,9 @@ class MapScreen extends React.Component<Props, State> {
             <Image source={require('assets/images/text/home.png')} />
           </TouchableOpacity>
         </View>
-        <ActivityIndicator animating={isLoading} />
+        <View style={styles.loading}>
+          <ActivityIndicator animating={isLoading} size="large" color="#FF8859" />
+        </View>
       </View>
     );
   }
@@ -317,6 +319,13 @@ const styles = StyleSheet.create({
   //   padding: 12,
   //   width: 160,
   // },
+  loading: {
+    position: 'absolute',
+    top: "25%",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10
+  },
   callout: {
     width: 140,
     //position: 'relative',
@@ -354,9 +363,10 @@ const styles = StyleSheet.create({
     height: 53,
   },
   header: {
-    marginBottom: '150%',
+    // marginBottom: '150%',
     // marginBottom: '143%',
     // marginTop: '10%',
+    top: "-90%",
     marginRight: '60%',
   },
 });
