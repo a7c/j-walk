@@ -11,7 +11,7 @@ import type {
 import type { VocabEntry } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 
-import { MapView } from 'expo';
+import { MapView, Location, Permissions } from 'expo';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -49,6 +49,8 @@ const getDistanceFromLatLng = (coords1, coords2) => {
   return 12742 * Math.asin(Math.sqrt(a)) * 1000; // 2 * R; R = 6371 km
 };
 
+const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 };
+
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
@@ -62,6 +64,13 @@ type State = {
     longitudeDelta: number,
   },
   isLoading: boolean,
+  location: null,
+  errorMessage: string,
+  playerPos: {
+    latitude: number,
+    longitude: number
+  },
+  playerHeading: number
 };
 
 class MapScreen extends React.Component<Props, State> {
@@ -81,15 +90,47 @@ class MapScreen extends React.Component<Props, State> {
         longitudeDelta: 0.00131,
       },
       isLoading: false,
+      location: null,
+      errorMessage: "",
+      playerPos: {
+        latitude: 0,
+        longitude: 0
+      },
+      playerHeading: 0
     };
+    Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+    Location.watchHeadingAsync(this.headingChanged);
   }
 
   componentDidMount() {
     try {
       this._populateMap();
+      this._getLocationAsync();
+      // Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+      // Location.watchHeadingAsync(this.headingChanged);
     } catch (error) {
       console.error(error);
     }
+  }
+
+  locationChanged = (location) => {
+    this.setState({location});
+    this.setState({
+      playerPos: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      }
+    })
+    console.log("UPDATE STATE");
+    console.log(this.state.playerPos);
+  }
+
+  headingChanged = (heading) => {
+    this.setState({
+      playerHeading: heading.magHeading
+    })
+    console.log("UPDATE HEADING");
+    console.log(this.state.playerHeading);
   }
 
   async _populateMap() {
@@ -153,12 +194,45 @@ class MapScreen extends React.Component<Props, State> {
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
-    console.log(venues);
+    // console.log(venues);
   }
 
   _onRegionChangeComplete = region => {
     this.setState({ region });
   };
+
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    this.setState({ location });
+    this.setState({
+      playerPos: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      }
+    })
+    console.log("INITIAL STATE");
+    console.log(this.state.location);
+  };
+  //
+  // _updateLocationAsync = async () => {
+  //   let location = await Location.watchPositionAsync({
+  //     enableHighAccuracy: true,
+  //     timeInterval: 5000,
+  //     distanceInterval: 5
+  //   }, (loc) => {
+  //     this.setState({
+  //       location: loc
+  //     })
+  //     console.log("STATE CHANGE")
+  //     console.log(this.state.location);
+  //   });
+  // };
 
   render() {
     const { navigation, store } = this.props;
@@ -174,6 +248,43 @@ class MapScreen extends React.Component<Props, State> {
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker venueId={venueId} key={venueId} />
           ))}
+          <MapView.Marker coordinate={this.state.playerPos}>
+            <Image
+              source={require('assets/images/map/mon.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 47,
+                height: 40,
+                zIndex: 1,
+              }}
+            />
+            <Image
+              source={require('assets/images/map/bearingV2.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 90,
+                height: 90,
+                zIndex: 0,
+                position: "absolute",
+                top: -24,
+                left: -21,
+                transform: [{ rotate: String(this.state.playerHeading)+"deg"}]
+              }}
+            />
+            {/* <Image
+              source={require('assets/images/map/bearing.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 80,
+                height: 90,
+                zIndex: 0,
+                position: "absolute",
+                top: -22,
+                left: -21,
+                transform: [{ rotate: String(this.state.playerHeading)+"deg"}],
+              }}
+            /> */}
+          </MapView.Marker>
         </MapView>
         <View style={styles.header}>
           <TouchableOpacity
@@ -183,7 +294,9 @@ class MapScreen extends React.Component<Props, State> {
             <Image source={require('assets/images/text/home.png')} />
           </TouchableOpacity>
         </View>
-        <ActivityIndicator animating={isLoading} />
+        <View style={styles.loading}>
+          <ActivityIndicator animating={isLoading} size="large" color="#FF8859" />
+        </View>
       </View>
     );
   }
@@ -211,6 +324,13 @@ const styles = StyleSheet.create({
   //   padding: 12,
   //   width: 160,
   // },
+  loading: {
+    position: 'absolute',
+    top: "25%",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10
+  },
   callout: {
     width: 140,
     //position: 'relative',
@@ -248,9 +368,10 @@ const styles = StyleSheet.create({
     height: 53,
   },
   header: {
-    marginBottom: '150%',
+    // marginBottom: '150%',
     // marginBottom: '143%',
     // marginTop: '10%',
+    top: "-90%",
     marginRight: '60%',
   },
 });
