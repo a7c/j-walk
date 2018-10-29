@@ -9,10 +9,13 @@ import type {
 } from 'react-navigation';
 
 import type { VocabEntry } from 'src/entities/Types';
+
 import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView, Location, Permissions } from 'expo';
+
 import React from 'react';
+
 import {
   ActivityIndicator,
   Image,
@@ -21,14 +24,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
+
 import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
+
 import VenueMarker from 'src/map/VenueMarker';
+
 import { withStore } from 'src/undux/GameStore';
 
 // adapted from https://stackoverflow.com/a/21623206

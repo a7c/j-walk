@@ -9,6 +9,7 @@ import { createStackNavigator } from 'react-navigation';
 
 import HomeScreen from 'src/screens/HomeScreen';
 import MapScreen from 'src/screens/MapScreen';
+import VocabScreen from 'src/screens/VocabScreen';
 import { Container } from 'src/undux/GameStore';
 
 type Props = {};
@@ -34,6 +35,7 @@ const AppNavigator = createStackNavigator(
   {
     Home: { screen: HomeScreen },
     Map: { screen: MapScreen },
+    Vocab: { screen: VocabScreen },
   },
   {
     cardStyle: { backgroundColor: '#ff8859' },
