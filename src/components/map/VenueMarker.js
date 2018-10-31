@@ -10,7 +10,7 @@ import React from 'react';
 import { Image } from 'react-native';
 
 import { VenueState } from 'src/entities/Types';
-import VenueCallout from 'src/map/VenueCallout';
+import VenueCallout from 'src/components/map/VenueCallout';
 import { withStore } from 'src/undux/GameStore';
 
 const sushiIcons = [

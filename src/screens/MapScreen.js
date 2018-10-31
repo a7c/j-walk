@@ -29,7 +29,7 @@ import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
-import VenueMarker from 'src/map/VenueMarker';
+import VenueMarker from 'src/components/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
 
 // adapted from https://stackoverflow.com/a/21623206
@@ -49,7 +49,11 @@ const getDistanceFromLatLng = (coords1, coords2) => {
   return 12742 * Math.asin(Math.sqrt(a)) * 1000; // 2 * R; R = 6371 km
 };
 
-const GEOLOCATION_OPTIONS = { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 };
+const GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: true,
+  timeInterval: 2000,
+  distanceInterval: 1,
+};
 
 type Props = {
   ...GameStoreProps,
@@ -68,9 +72,9 @@ type State = {
   errorMessage: string,
   playerPos: {
     latitude: number,
-    longitude: number
+    longitude: number,
   },
-  playerHeading: number
+  playerHeading: number,
 };
 
 class MapScreen extends React.Component<Props, State> {
@@ -91,14 +95,17 @@ class MapScreen extends React.Component<Props, State> {
       },
       isLoading: false,
       location: null,
-      errorMessage: "",
+      errorMessage: '',
       playerPos: {
         latitude: 0,
-        longitude: 0
+        longitude: 0,
       },
-      playerHeading: 0
+      playerHeading: 0,
     };
-    Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
+    Location.watchPositionAsync(
+      { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 },
+      this.locationChanged
+    );
     Location.watchHeadingAsync(this.headingChanged);
   }
 
@@ -113,25 +120,25 @@ class MapScreen extends React.Component<Props, State> {
     }
   }
 
-  locationChanged = (location) => {
-    this.setState({location});
+  locationChanged = location => {
+    this.setState({ location });
     this.setState({
       playerPos: {
         latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      }
-    })
-    console.log("UPDATE STATE");
+        longitude: location.coords.longitude,
+      },
+    });
+    console.log('UPDATE STATE');
     console.log(this.state.playerPos);
-  }
+  };
 
-  headingChanged = (heading) => {
+  headingChanged = heading => {
     this.setState({
-      playerHeading: heading.magHeading
-    })
-    console.log("UPDATE HEADING");
+      playerHeading: heading.magHeading,
+    });
+    console.log('UPDATE HEADING');
     console.log(this.state.playerHeading);
-  }
+  };
 
   async _populateMap() {
     const { store } = this.props;
@@ -213,10 +220,10 @@ class MapScreen extends React.Component<Props, State> {
     this.setState({
       playerPos: {
         latitude: location.coords.latitude,
-        longitude: location.coords.longitude
-      }
-    })
-    console.log("INITIAL STATE");
+        longitude: location.coords.longitude,
+      },
+    });
+    console.log('INITIAL STATE');
     console.log(this.state.location);
   };
   //
@@ -265,10 +272,12 @@ class MapScreen extends React.Component<Props, State> {
                 width: 90,
                 height: 90,
                 zIndex: 0,
-                position: "absolute",
+                position: 'absolute',
                 top: -24,
                 left: -21,
-                transform: [{ rotate: String(this.state.playerHeading)+"deg"}]
+                transform: [
+                  { rotate: String(this.state.playerHeading) + 'deg' },
+                ],
               }}
             />
             {/* <Image
@@ -295,7 +304,11 @@ class MapScreen extends React.Component<Props, State> {
           </TouchableOpacity>
         </View>
         <View style={styles.loading}>
-          <ActivityIndicator animating={isLoading} size="large" color="#FF8859" />
+          <ActivityIndicator
+            animating={isLoading}
+            size="large"
+            color="#FF8859"
+          />
         </View>
       </View>
     );
@@ -326,10 +339,10 @@ const styles = StyleSheet.create({
   // },
   loading: {
     position: 'absolute',
-    top: "25%",
+    top: '25%',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 10
+    padding: 10,
   },
   callout: {
     width: 140,
@@ -371,7 +384,7 @@ const styles = StyleSheet.create({
     // marginBottom: '150%',
     // marginBottom: '143%',
     // marginTop: '10%',
-    top: "-90%",
+    top: '-90%',
     marginRight: '60%',
   },
 });
