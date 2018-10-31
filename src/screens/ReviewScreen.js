@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 
+import Choices from 'src/components/flashcards/Choices';
 import VocabCard from 'src/components/flashcards/VocabCard';
 import { makeJpFormatter } from 'src/jp/Util';
 import { withStore } from 'src/undux/GameStore';
@@ -74,10 +75,25 @@ class ReviewScreen extends React.Component<Props, State> {
     }
     const formatJp = makeJpFormatter(store.get('jpDisplayStyle'));
     const japanese = formatJp(vocab.reading);
+    const english = vocab.english;
+    const learnedVocab = store.get('learnedVocab');
+    const englishList = [...learnedVocab]
+      .map(vocabId => {
+        const v = vocabById.get(vocabId);
+        return v ? v.english : null;
+      })
+      .filter(Boolean);
 
     return (
       <React.Fragment>
         <VocabCard jp={japanese} />
+        <Choices
+          answer={english}
+          formatJp={formatJp}
+          vocab={englishList}
+          // onCorrectAnswer={this._handleCorrectAnswer}
+          // onIncorrectAnswer={this._handleIncorrectAnswer}
+        />
       </React.Fragment>
     );
   }

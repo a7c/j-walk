@@ -1,6 +1,4 @@
 /**
- *  Card component that displays a word.
- *
  *  @flow
  */
 
@@ -24,6 +22,9 @@ type Props = {
   jp: string,
 };
 
+/**
+ *  Card component that displays a word.
+ */
 export default class VocabCard extends React.Component<Props> {
   render() {
     return (

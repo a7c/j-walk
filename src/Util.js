@@ -8,15 +8,15 @@
  *
  * Source: http://stackoverflow.com/a/12646864
  */
-export const shuffleArray = (array: Array<mixed>) => {
-  for (var i = array.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = array[i];
+export function shuffleArray<T>(array: Array<T>): Array<T> {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    let temp = array[i];
     array[i] = array[j];
     array[j] = temp;
   }
   return array;
-};
+}
 
 /**
  * Returns a random integer between min and max (inclusive).

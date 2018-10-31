@@ -13,7 +13,9 @@ import { toRomaji } from 'wanakana';
  *  NOTE: currently assumes that no kanji will be passed in. it
  *  would be nice if this could convert kanji -> kana/romaji too.
  */
-export const makeJpFormatter = (displayStyle: JpDisplayStyleType) => {
+export const makeJpFormatter = (
+  displayStyle: JpDisplayStyleType
+): (string => string) => {
   return (jp: string) => {
     switch (displayStyle) {
       case JpDisplayStyle.KANJI:
