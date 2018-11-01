@@ -22,6 +22,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native';
 
 import { StackNavigator, NavigationActions } from 'react-navigation';
@@ -40,19 +41,20 @@ type State = {
 class VocabScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Vocab',
-    header: { visible:false },
+    header: { visible: false },
     gesturesEnabled: false,
   };
 
-constructor(props: Props) {
-  super(props);
-  this.state = {
-    // nothing yet
-  };
-}
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      // nothing yet
+    };
+  }
 
   render() {
     const { navigation, store } = this.props;
+    console.log('MANGO: ' + store.get('learnedVocab').size);
 
     return (
       <View style={styles.container}>
@@ -64,18 +66,22 @@ constructor(props: Props) {
             <Image source={require('assets/images/text/home.png')} />
           </TouchableOpacity>
         </View>
-        {/* <Text style={styles.item}>
-          {'Words learned: ' + this.props.learnedVocab.list.length}
+        <Text style={styles.item}>
+          {"You've learned " + store.get('learnedVocab').size + ' words!'}
         </Text>
         <FlatList
-          data={this.props.learnedVocab.list}
-          renderItem={({item}) => {
-            return (<Text style={styles.item}>
-              {formatJapanese(this.props.vocabById[item].kana) + " = " + this.props.vocabById[item].english}
-            </Text>);
+          data={store.get('learnedVocab')}
+          renderItem={({ item }) => {
+            return (
+              <Text style={styles.item}>
+                "{formatJapanese(store.get('vocabById').map(item).kana) +
+                  ' = ' +
+                  store.get('vocabById').map(item).english}"
+              </Text>
+            );
           }}
           keyExtractor={(item, index) => item}
-        /> */}
+        />
       </View>
     );
   }
@@ -83,25 +89,24 @@ constructor(props: Props) {
 
 export default withStore(VocabScreen);
 
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,                            // Take up the whole screen
-    alignItems: 'center',               // Center button horizontally
-    paddingTop: 22
+    flex: 1, // Take up the whole screen
+    alignItems: 'center', // Center button horizontally
+    // paddingTop: 22,
   },
   item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
+    fontFamily: 'krungthep',
+    marginTop: '20%',
+    fontSize: 22,
   },
   backButton: {
     width: 70,
     height: 30,
   },
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 35,
-    left: 20
+    left: 20,
   },
 });
