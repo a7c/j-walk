@@ -28,22 +28,15 @@ import {
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
-<<<<<<< HEAD
 
-=======
 import { VenueState } from 'src/entities/Types';
->>>>>>> aab9f9312cde5dce5fffe0eb8aa4f2c9e21de66b
+
 import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
-<<<<<<< HEAD
 
-import VenueMarker from 'src/map/VenueMarker';
-
-=======
 import VenueMarker from 'src/components/map/VenueMarker';
->>>>>>> aab9f9312cde5dce5fffe0eb8aa4f2c9e21de66b
 import { withStore } from 'src/undux/GameStore';
 
 // adapted from https://stackoverflow.com/a/21623206

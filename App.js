@@ -39,11 +39,8 @@ const AppNavigator = createStackNavigator(
   {
     Home: { screen: HomeScreen },
     Map: { screen: MapScreen },
-<<<<<<< HEAD
     Vocab: { screen: VocabScreen },
-=======
     Review: { screen: ReviewScreen },
->>>>>>> aab9f9312cde5dce5fffe0eb8aa4f2c9e21de66b
   },
   {
     cardStyle: { backgroundColor: '#ff8859' },
