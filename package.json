@@ -16,7 +16,8 @@
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz",
     "rxjs": "^6.3.2",
-    "undux": "^5.0.0-alpha.15"
+    "undux": "^5.0.0-alpha.15",
+    "wanakana": "^4.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

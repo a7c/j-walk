@@ -7,8 +7,10 @@ import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView } from 'expo';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 
+import { VenueState } from 'src/entities/Types';
+import { makeJpFormatter } from 'src/jp/Util';
 import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
@@ -34,6 +36,30 @@ class VenueCallout extends React.Component<Props, State> {
       );
     }
   }
+
+  _onLearnPressed = () => {
+    const { store } = this.props;
+    const vocabById = store.get('vocabById');
+    if (!this._venue.vocab) {
+      throw new Error("Cannot learn if there's no vocab!");
+    }
+    const vocab = vocabById.get(this._venue.vocab);
+    if (!vocab) {
+      throw new Error(
+        "Tried to learn a vocab word but the corresponding ID doesn't exist!"
+      );
+    }
+
+    const learnedVocab = store.get('learnedVocab');
+    const newLearnedVocab = new Set(learnedVocab).add(vocab.id);
+    store.set('learnedVocab')(newLearnedVocab);
+    this._venue.state = VenueState.HIDDEN;
+    store.set('venuesById')(new Map(store.get('venuesById')));
+
+    const formatJp = makeJpFormatter(store.get('jpDisplayStyle'));
+    const vocabText = `${formatJp(vocab.reading)}\n${vocab.english}`;
+    Alert.alert(`Learned a new word!`, `${vocabText}`);
+  };
 
   render() {
     const { store } = this.props;
@@ -65,6 +91,8 @@ class VenueCallout extends React.Component<Props, State> {
           <View style={styles.arrowBorder} />
           <View style={styles.arrow} />
         </View>
+        {/* TODO: factor out into own component? */}
+        <Button onPress={this._onLearnPressed} title={'Learn'} />
       </MapView.Callout>
     );
   }
@@ -136,7 +164,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     backgroundColor: 'white',
     flexGrow: 0.2,
-    flex: 0,
+    flex: 0
   },
   venueLOCKED: {
     fontFamily: 'krungthep',
