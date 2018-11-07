@@ -135,16 +135,16 @@ class MapScreen extends React.Component<Props, State> {
         longitude: location.coords.longitude,
       },
     });
-    console.log('UPDATE STATE');
-    console.log(this.state.playerPos);
+    // console.log('UPDATE STATE');
+    // console.log(this.state.playerPos);
   };
 
   headingChanged = heading => {
     this.setState({
       playerHeading: heading.magHeading,
     });
-    console.log('UPDATE HEADING');
-    console.log(this.state.playerHeading);
+    // console.log('UPDATE HEADING');
+    // console.log(this.state.playerHeading);
   };
 
   async _populateMap() {
