@@ -1,7 +1,6 @@
 /**
-  Map screen.
-
-*/
+ * @flow
+ */
 
 import type {
   NavigationScreenConfig,
@@ -16,7 +15,6 @@ import type { GameStoreProps } from 'src/undux/GameStore';
 import React from 'react';
 
 import {
-  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
@@ -54,7 +52,7 @@ class VocabScreen extends React.Component<Props, State> {
 
   render() {
     const { navigation, store } = this.props;
-    console.log('MANOG: ' + Array.from(store.get('learnedVocab')));
+    // console.log('MANGO: ' + store.get('vocabById').get('x').id);
 
     return (
       <View style={styles.container}>
@@ -72,13 +70,19 @@ class VocabScreen extends React.Component<Props, State> {
         <FlatList
           data={Array.from(store.get('learnedVocab'))}
           renderItem={({ item }) => {
-            return (
-              <Text style={styles.item}>
-                {store.get('vocabById').get(item).id +
-                  ' = ' +
-                  store.get('vocabById').get(item).english}
-              </Text>
-            );
+            if (store.get('vocabById').get(item) != undefined) {
+              return (
+                <Text style={styles.item}>
+                  {store.get('vocabById').get(item).id +
+                    ' = ' +
+                    store.get('vocabById').get(item).english}
+                </Text>
+              );
+            } else {
+              console.error(
+                'VocabById Key Error when rendering on VocabScreen.js'
+              );
+            }
           }}
           keyExtractor={(item, index) => item}
         />
