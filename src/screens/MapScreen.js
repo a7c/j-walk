@@ -9,10 +9,13 @@ import type {
 } from 'react-navigation';
 
 import type { VocabEntry } from 'src/entities/Types';
+
 import type { GameStoreProps } from 'src/undux/GameStore';
 
 import { MapView, Location, Permissions } from 'expo';
+
 import React from 'react';
+
 import {
   ActivityIndicator,
   Image,
@@ -21,14 +24,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
+
 import { VenueState } from 'src/entities/Types';
+
 import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
+
 import VenueMarker from 'src/components/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
 
@@ -128,16 +135,16 @@ class MapScreen extends React.Component<Props, State> {
         longitude: location.coords.longitude,
       },
     });
-    console.log('UPDATE STATE');
-    console.log(this.state.playerPos);
+    // console.log('UPDATE STATE');
+    // console.log(this.state.playerPos);
   };
 
   headingChanged = heading => {
     this.setState({
       playerHeading: heading.magHeading,
     });
-    console.log('UPDATE HEADING');
-    console.log(this.state.playerHeading);
+    // console.log('UPDATE HEADING');
+    // console.log(this.state.playerHeading);
   };
 
   async _populateMap() {

@@ -70,6 +70,9 @@ export default class HomeScreen extends React.Component<Props> {
           {createButton(require('assets/images/text/vocabulary.png'), () => {
             navigate('Vocab');
           })}
+          {createButton(require('assets/images/text/settings.png'), () => {
+            navigate('Settings');
+          })}
           {createButton(require('assets/images/text/clear_data.png'), () => {
             Alert.alert(
               'Clear Data',
@@ -106,7 +109,7 @@ const styles = StyleSheet.create({
   },
   image: {
     maxWidth: '80%',
-    maxHeight: '150%',
+    maxHeight: '205%',
     resizeMode: 'contain',
   },
   imageTitle: {

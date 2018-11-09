@@ -9,6 +9,7 @@ import { createStackNavigator } from 'react-navigation';
 
 import HomeScreen from 'src/screens/HomeScreen';
 import MapScreen from 'src/screens/MapScreen';
+import VocabScreen from 'src/screens/VocabScreen';
 import ReviewScreen from 'src/screens/ReviewScreen';
 import { Container } from 'src/undux/GameStore';
 
@@ -38,6 +39,7 @@ const AppNavigator = createStackNavigator(
   {
     Home: { screen: HomeScreen },
     Map: { screen: MapScreen },
+    Vocab: { screen: VocabScreen },
     Review: { screen: ReviewScreen },
   },
   {

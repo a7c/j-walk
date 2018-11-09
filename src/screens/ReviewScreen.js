@@ -121,12 +121,9 @@ export default withStore(ReviewScreen);
 
 const styles = StyleSheet.create({
   header: {
-    // top: '5%',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    // alignItems: 'flex-start',
-    marginBottom: '10%',
+    position: 'absolute',
+    top: 35,
+    left: 20,
   },
   backButton: {
     width: 70,
