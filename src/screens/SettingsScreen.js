@@ -21,6 +21,7 @@ import {
   TextInput,
   Picker,
   Button,
+  Alert,
 } from 'react-native';
 
 import { StackNavigator, NavigationActions } from 'react-navigation';
@@ -86,7 +87,24 @@ class SettingsScreen extends React.Component<Props, State> {
             <Picker.Item label="Romaji" value="ROMAJI" style={styles.item} />
           </Picker>
           <TouchableOpacity
-            onPress={() => navigation.dispatch(NavigationActions.back())}
+            onPress={() =>
+              Alert.alert(
+                'Your settings have been saved!',
+                'Return Home?',
+                [
+                  {
+                    text: 'Not Yet',
+                    onPress: () => console.log('Cancel Pressed!'),
+                  },
+                  {
+                    text: 'Yes Please!',
+                    onPress: () =>
+                      navigation.dispatch(NavigationActions.back()),
+                  },
+                ],
+                { cancelable: false }
+              )
+            }
             style={styles.saveButton}
             color="#FFFFFF"
           >
