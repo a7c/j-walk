@@ -21,7 +21,7 @@ type State = {|
   nearbyVenues: Set<string>, // venue ids
 
   jpDisplayStyle: JpDisplayStyleType,
-  playerID: string,
+  playerID: ?string,
 |};
 
 const initialState: State = {

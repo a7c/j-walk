@@ -35,11 +35,7 @@ type Props = {
   navigation: NavigationScreenProp<NavigationState>,
 };
 
-type State = {
-  // nothing
-};
-
-class SettingsScreen extends React.Component<Props, State> {
+class SettingsScreen extends React.Component<Props> {
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Settings',
     header: { visible: false },
