@@ -21,6 +21,7 @@ type State = {|
   nearbyVenues: Set<string>, // venue ids
 
   jpDisplayStyle: JpDisplayStyleType,
+  playerID: ?string,
 |};
 
 const initialState: State = {
@@ -67,6 +68,7 @@ const initialState: State = {
   nearbyVenues: new Set(),
 
   jpDisplayStyle: JpDisplayStyle.KANA,
+  playerID: '',
 };
 
 const { withStore, Container } = createConnectedStore(initialState);

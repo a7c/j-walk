@@ -62,6 +62,9 @@ const GEOLOCATION_OPTIONS = {
   distanceInterval: 1,
 };
 
+const LATITUDE_DELTA = 0.002;
+const LONGITUDE_DELTA = 0.002;
+
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
@@ -230,6 +233,14 @@ class MapScreen extends React.Component<Props, State> {
         longitude: location.coords.longitude,
       },
     });
+    this.setState({
+      region: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      },
+    });
     console.log('INITIAL STATE');
     console.log(this.state.location);
   };
@@ -262,7 +273,10 @@ class MapScreen extends React.Component<Props, State> {
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker venueId={venueId} key={venueId} />
           ))}
-          <MapView.Marker coordinate={this.state.playerPos}>
+          <MapView.Marker
+            coordinate={this.state.playerPos}
+            pointerEvents="none"
+          >
             <Image
               source={require('assets/images/map/mon.png')}
               resizeMode={Image.resizeMode.cover}
