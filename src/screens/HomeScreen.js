@@ -22,6 +22,7 @@ import React from 'react';
 import {
   Alert,
   Button,
+  Dimensions,
   Image,
   StyleSheet,
   Text,
@@ -99,17 +100,17 @@ export default class HomeScreen extends React.Component<Props> {
   }
 }
 
+const { height, width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: {
-    marginBottom: '90%',
     justifyContent: 'space-between',
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
   },
   image: {
-    maxWidth: '80%',
-    maxHeight: '205%',
+    height: height * 0.15,
     resizeMode: 'contain',
   },
   imageTitle: {

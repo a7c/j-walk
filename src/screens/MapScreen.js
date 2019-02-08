@@ -123,8 +123,6 @@ class MapScreen extends React.Component<Props, State> {
     try {
       this._populateMap();
       this._getLocationAsync();
-      // Location.watchPositionAsync({ enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 }, this.locationChanged);
-      // Location.watchHeadingAsync(this.headingChanged);
     } catch (error) {
       console.error(error);
     }
@@ -138,16 +136,12 @@ class MapScreen extends React.Component<Props, State> {
         longitude: location.coords.longitude,
       },
     });
-    // console.log('UPDATE STATE');
-    // console.log(this.state.playerPos);
   };
 
   headingChanged = heading => {
     this.setState({
       playerHeading: heading.magHeading,
     });
-    // console.log('UPDATE HEADING');
-    // console.log(this.state.playerHeading);
   };
 
   async _populateMap() {
@@ -180,7 +174,6 @@ class MapScreen extends React.Component<Props, State> {
         venue.id
       );
       for (const keyword of keywords) {
-        console.log('keyword: ' + keyword);
         let vocabCandidates = vocabFromKeyword.get(keyword);
         if (!vocabCandidates) {
           const vocabEntries: Array<VocabEntry> = await generateVocabForKeyword(
@@ -195,7 +188,6 @@ class MapScreen extends React.Component<Props, State> {
 
           vocabFromKeyword.set(keyword, vocabCandidates);
         }
-        console.log(vocabCandidates);
 
         const vocabForVenue = vocabCandidates.pop();
         if (!vocabForVenue) {
@@ -211,7 +203,6 @@ class MapScreen extends React.Component<Props, State> {
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
-    // console.log(venues);
   }
 
   _onRegionChangeComplete = region => {
@@ -241,23 +232,7 @@ class MapScreen extends React.Component<Props, State> {
         longitudeDelta: LONGITUDE_DELTA,
       },
     });
-    console.log('INITIAL STATE');
-    console.log(this.state.location);
   };
-  //
-  // _updateLocationAsync = async () => {
-  //   let location = await Location.watchPositionAsync({
-  //     enableHighAccuracy: true,
-  //     timeInterval: 5000,
-  //     distanceInterval: 5
-  //   }, (loc) => {
-  //     this.setState({
-  //       location: loc
-  //     })
-  //     console.log("STATE CHANGE")
-  //     console.log(this.state.location);
-  //   });
-  // };
 
   render() {
     const { navigation, store } = this.props;
@@ -301,19 +276,6 @@ class MapScreen extends React.Component<Props, State> {
                 ],
               }}
             />
-            {/* <Image
-              source={require('assets/images/map/bearing.png')}
-              resizeMode={Image.resizeMode.cover}
-              style={{
-                width: 80,
-                height: 90,
-                zIndex: 0,
-                position: "absolute",
-                top: -22,
-                left: -21,
-                transform: [{ rotate: String(this.state.playerHeading)+"deg"}],
-              }}
-            /> */}
           </MapView.Marker>
         </MapView>
         <View style={styles.header}>
@@ -348,16 +310,6 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  // buttonContainer: {
-  //   marginVertical: 20,
-  // },
-  // button: {
-  //   alignItems: 'center',
-  //   backgroundColor: 'rgba(255,255,255,0.7)',
-  //   borderRadius: 20,
-  //   padding: 12,
-  //   width: 160,
-  // },
   loading: {
     position: 'absolute',
     top: '25%',
@@ -402,9 +354,6 @@ const styles = StyleSheet.create({
     height: 53,
   },
   header: {
-    // marginBottom: '150%',
-    // marginBottom: '143%',
-    // marginTop: '10%',
     top: '-90%',
     marginRight: '60%',
   },
