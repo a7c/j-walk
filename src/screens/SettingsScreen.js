@@ -61,11 +61,23 @@ class SettingsScreen extends React.Component<Props> {
         </View>
         <View style={styles.body}>
           <Text style={styles.description}> Set User ID </Text>
-          <TextInput
-            style={styles.inputBox}
-            onChangeText={userId => store.set('playerID')(userId)}
-            value={store.get('playerID')}
-          />
+          <View style={styles.userIdFlex}>
+            <TouchableOpacity
+              onPress={() =>
+                generateID(store)
+              }
+              style={styles.idButton}
+              color="#FFFFFF"
+            >
+              <Text style={styles.saveText}>Generate ID</Text>
+            </TouchableOpacity>
+            <TextInput
+              style={styles.inputBox}
+              // onChangeText={userId => store.set('playerID')(userId)}
+              editable={false}
+              value={store.get('playerID')}
+            />
+          </View>
           <Text style={styles.description}> Set Japanese Display Style </Text>
           <Picker
             selectedValue={store.get('jpDisplayStyle')}
@@ -141,6 +153,24 @@ function clearData(store) {
   store.set('jpDisplayStyle')('KANA')
 }
 
+function generateID(store) {
+  var id;
+  var letter;
+  var num;
+  const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
+                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  const min = 10;
+  const max = 99;
+
+  num = String(Math.round(min + Math.random() * (max - min)));
+  letter = alphabet[Math.floor(Math.random()*alphabet.length)];
+
+  id = letter+num;
+
+  console.log("MANGO: "+id)
+  store.set('playerID')(id)
+}
+
 export default withStore(SettingsScreen);
 
 const styles = StyleSheet.create({
@@ -152,8 +182,9 @@ const styles = StyleSheet.create({
   inputBox: {
     backgroundColor: '#FFA37F',
     fontFamily: 'krungthep',
-    marginTop: 10,
-    width: '90%',
+    marginTop: 15,
+    marginLeft: 5,
+    width: '30%',
     fontSize: 22,
     borderColor: 'white',
     borderWidth: 2,
@@ -168,7 +199,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   description: {
-    marginTop: 50,
+    marginTop: 40,
     textAlign: 'center',
     fontFamily: 'krungthep',
     fontSize: 22,
@@ -178,7 +209,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   saveButton: {
-    marginTop: 50,
+    marginTop: 30,
     backgroundColor: 'white',
     width: '90%',
     height: 45,
@@ -201,15 +232,29 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 5,
   },
+  idButton: {
+    marginTop: 15,
+    marginRight: 5,
+    backgroundColor: 'white',
+    width: '40%',
+    height: 45,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 5,
+  },
   header: {
     position: 'absolute',
     top: 35,
     left: 20,
   },
   body: {
-    marginTop: 50,
+    marginTop: 40,
     flex: 1,
     width: '100%',
+    alignItems: 'center',
+  },
+  userIdFlex: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 });
