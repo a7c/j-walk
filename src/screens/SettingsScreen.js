@@ -106,10 +106,39 @@ class SettingsScreen extends React.Component<Props> {
           >
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                'Are you sure you want to clear your data?',
+                'This cannot be undone.',
+                [
+                  {
+                    text: 'No',
+                    onPress: () => console.log('Data Clear Canceled!'),
+                  },
+                  {
+                    text: 'Yes',
+                    onPress: () =>
+                      clearData(store)
+                  },
+                ],
+                { cancelable: false }
+              )
+            }
+            style={styles.clearButton}
+            color="#FFFFFF"
+          >
+            <Text style={styles.saveText}>Clear Data</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
+}
+
+function clearData(store) {
+  store.set('playerID')('')
+  store.set('jpDisplayStyle')('KANA')
 }
 
 export default withStore(SettingsScreen);
@@ -162,6 +191,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     textAlign: 'center',
     marginTop: 8,
+  },
+  clearButton: {
+    marginTop: 15,
+    backgroundColor: 'white',
+    width: '90%',
+    height: 45,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 5,
   },
   header: {
     position: 'absolute',

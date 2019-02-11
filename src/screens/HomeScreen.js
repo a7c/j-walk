@@ -73,26 +73,6 @@ export default class HomeScreen extends React.Component<Props> {
           {createButton(require('assets/images/text/settings.png'), () => {
             navigate('Settings');
           })}
-          {createButton(require('assets/images/text/clear_data.png'), () => {
-            Alert.alert(
-              'Clear Data',
-              'Are you sure you want to clear game data?',
-              [
-                { text: 'Cancel' },
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // this.props.dispatch(resetData());
-                    // this.setState({
-                    //   promptPlayerId: false,
-                    //   promptKanaRomaji: true,
-                    //   promptNavType: false,
-                    // });
-                  },
-                },
-              ]
-            );
-          })}
         </View>
       </View>
     );
@@ -109,7 +89,7 @@ const styles = StyleSheet.create({
   },
   image: {
     maxWidth: '80%',
-    maxHeight: '205%',
+    maxHeight: '187%',
     resizeMode: 'contain',
   },
   imageTitle: {
