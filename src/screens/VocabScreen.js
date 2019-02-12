@@ -52,7 +52,6 @@ class VocabScreen extends React.Component<Props, State> {
 
   render() {
     const { navigation, store } = this.props;
-    // console.log('MANGO: ' + store.get('vocabById').get('x').id);
 
     return (
       <View style={styles.container}>
@@ -70,12 +69,13 @@ class VocabScreen extends React.Component<Props, State> {
         <FlatList
           data={Array.from(store.get('learnedVocab'))}
           renderItem={({ item }) => {
-            if (store.get('vocabById').get(item) != undefined) {
+            var vocab = store.get('vocabById').get(item);
+            if (vocab != undefined) {
               return (
                 <Text style={styles.item}>
-                  {store.get('vocabById').get(item).id +
+                  {vocab.id +
                     ' = ' +
-                    store.get('vocabById').get(item).english}
+                    vocab.english}
                 </Text>
               );
             } else {
