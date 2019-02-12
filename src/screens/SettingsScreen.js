@@ -61,11 +61,22 @@ class SettingsScreen extends React.Component<Props> {
         </View>
         <View style={styles.body}>
           <Text style={styles.description}> Set User ID </Text>
-          <TextInput
-            style={styles.inputBox}
-            onChangeText={userId => store.set('playerID')(userId)}
-            value={store.get('playerID')}
-          />
+          <View style={styles.userIdFlex}>
+            <TouchableOpacity
+              onPress={() =>
+                generateID(store)
+              }
+              style={styles.idButton}
+              color="#FFFFFF"
+            >
+              <Text style={styles.saveText}>Generate ID</Text>
+            </TouchableOpacity>
+            <TextInput
+              style={styles.inputBox}
+              editable={false}
+              value={store.get('playerID')}
+            />
+          </View>
           <Text style={styles.description}> Set Japanese Display Style </Text>
           <Picker
             selectedValue={store.get('jpDisplayStyle')}
@@ -90,7 +101,6 @@ class SettingsScreen extends React.Component<Props> {
                 [
                   {
                     text: 'Not Yet',
-                    onPress: () => console.log('Cancel Pressed!'),
                   },
                   {
                     text: 'Yes Please!',
@@ -106,25 +116,67 @@ class SettingsScreen extends React.Component<Props> {
           >
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                'Are you sure you want to clear your data?',
+                'This cannot be undone.',
+                [
+                  {
+                    text: 'No',
+                  },
+                  {
+                    text: 'Yes',
+                    onPress: () =>
+                      clearData(store)
+                  },
+                ],
+                { cancelable: false }
+              )
+            }
+            style={styles.clearButton}
+            color="#FFFFFF"
+          >
+            <Text style={styles.saveText}>Clear Data</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
 }
 
+function clearData(store) {
+  store.set('playerID')('')
+  store.set('jpDisplayStyle')('KANA')
+}
+
+function generateID(store) {
+  const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
+                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  const min = 10;
+  const max = 99;
+
+  const num = String(Math.round(min + Math.random() * (max - min)));
+  const letter = alphabet[Math.floor(Math.random()*alphabet.length)];
+
+  const id = letter+num;
+
+  store.set('playerID')(id)
+}
+
 export default withStore(SettingsScreen);
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Take up the whole screen
-    alignItems: 'center', // Center button horizontally
-    // paddingTop: 22,
+    flex: 1,
+    alignItems: 'center',
   },
   inputBox: {
     backgroundColor: '#FFA37F',
     fontFamily: 'krungthep',
-    marginTop: 10,
-    width: '90%',
+    marginTop: 15,
+    marginLeft: 5,
+    width: '30%',
     fontSize: 22,
     borderColor: 'white',
     borderWidth: 2,
@@ -139,7 +191,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   description: {
-    marginTop: 50,
+    marginTop: 40,
     textAlign: 'center',
     fontFamily: 'krungthep',
     fontSize: 22,
@@ -149,7 +201,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   saveButton: {
-    marginTop: 50,
+    marginTop: 30,
     backgroundColor: 'white',
     width: '90%',
     height: 45,
@@ -163,15 +215,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
+  clearButton: {
+    marginTop: 15,
+    backgroundColor: 'white',
+    width: '90%',
+    height: 45,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 5,
+  },
+  idButton: {
+    marginTop: 15,
+    marginRight: 5,
+    backgroundColor: 'white',
+    width: '40%',
+    height: 45,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 5,
+  },
   header: {
     position: 'absolute',
     top: 35,
     left: 20,
   },
   body: {
-    marginTop: 50,
+    marginTop: 40,
     flex: 1,
     width: '100%',
+    alignItems: 'center',
+  },
+  userIdFlex: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 });
