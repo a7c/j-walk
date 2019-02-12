@@ -73,7 +73,6 @@ class SettingsScreen extends React.Component<Props> {
             </TouchableOpacity>
             <TextInput
               style={styles.inputBox}
-              // onChangeText={userId => store.set('playerID')(userId)}
               editable={false}
               value={store.get('playerID')}
             />
@@ -102,7 +101,6 @@ class SettingsScreen extends React.Component<Props> {
                 [
                   {
                     text: 'Not Yet',
-                    onPress: () => console.log('Cancel Pressed!'),
                   },
                   {
                     text: 'Yes Please!',
@@ -126,7 +124,6 @@ class SettingsScreen extends React.Component<Props> {
                 [
                   {
                     text: 'No',
-                    onPress: () => console.log('Data Clear Canceled!'),
                   },
                   {
                     text: 'Yes',
@@ -154,20 +151,16 @@ function clearData(store) {
 }
 
 function generateID(store) {
-  var id;
-  var letter;
-  var num;
   const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
                     'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
   const min = 10;
   const max = 99;
 
-  num = String(Math.round(min + Math.random() * (max - min)));
-  letter = alphabet[Math.floor(Math.random()*alphabet.length)];
+  const num = String(Math.round(min + Math.random() * (max - min)));
+  const letter = alphabet[Math.floor(Math.random()*alphabet.length)];
 
-  id = letter+num;
+  const id = letter+num;
 
-  console.log("MANGO: "+id)
   store.set('playerID')(id)
 }
 
@@ -175,9 +168,8 @@ export default withStore(SettingsScreen);
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Take up the whole screen
-    alignItems: 'center', // Center button horizontally
-    // paddingTop: 22,
+    flex: 1,
+    alignItems: 'center',
   },
   inputBox: {
     backgroundColor: '#FFA37F',
