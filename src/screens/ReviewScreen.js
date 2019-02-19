@@ -152,12 +152,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 35,
     left: 20,
+    zIndex: 2,
   },
   backButton: {
     width: 70,
     height: 30,
-    // left: 100,
-    // alignSelf: 'flex-start'
   },
   stats: {
     fontFamily: 'kiwano-apple',
@@ -169,21 +168,10 @@ const styles = StyleSheet.create({
     height: 30,
     left: 170,
     top: 25,
-    // alignSelf: 'flex-end'
-    // top: -485,
-    // right: 135
-    // bottom: '100%',
-    // right: '30%'
   },
   emptyBar: {
     width: 173.5,
     height: 22,
-    // alignSelf: 'center',
-    // position: 'absolute',
-    // bottom: 522,
-    // left: -20
-    // bottom: 463,
-    // left: -20
   },
   levelUp: {
     width: 350,
