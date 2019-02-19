@@ -59,20 +59,27 @@ const GEOLOCATION_OPTIONS = {
 const LATITUDE_DELTA = 0.002;
 const LONGITUDE_DELTA = 0.002;
 
+type Region = {|
+  latitude: number,
+  longitude: number,
+  latitudeDelta: number,
+  longitudeDelta: number,
+|};
+
+const DEFAULT_REGION = {
+  latitude: 42.444782,
+  longitude: -76.484187,
+  latitudeDelta: 0.00287,
+  longitudeDelta: 0.00131,
+};
+
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
 };
 
 type State = {
-  region: {
-    latitude: number,
-    longitude: number,
-    latitudeDelta: number,
-    longitudeDelta: number,
-  },
   isLoading: boolean,
-  location: null,
   errorMessage: string,
   playerPos: {
     latitude: number,
@@ -83,6 +90,7 @@ type State = {
 
 class MapScreen extends React.Component<Props, State> {
   _headingSubscription = null;
+  _map = null;
   _pendingPromises: Array<CancellablePromise<any>> = [];
   _positionSubscription = null;
 
@@ -95,14 +103,7 @@ class MapScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      region: {
-        latitude: 42.444782,
-        longitude: -76.484187,
-        latitudeDelta: 0.00287,
-        longitudeDelta: 0.00131,
-      },
       isLoading: false,
-      location: null,
       errorMessage: '',
       playerPos: {
         latitude: 0,
@@ -157,7 +158,6 @@ class MapScreen extends React.Component<Props, State> {
   };
 
   _onLocationChanged = location => {
-    this.setState({ location });
     this.setState({
       playerPos: {
         latitude: location.coords.latitude,
@@ -174,13 +174,13 @@ class MapScreen extends React.Component<Props, State> {
 
   _populateMap = async () => {
     const { store } = this.props;
-    const { region } = this.state;
+    const { playerPos } = this.state;
 
     this.setState({
       isLoading: true,
     });
     const venues = await this._wrapPromise(
-      fetchVenues(region.latitude, region.longitude, 250)
+      fetchVenues(playerPos.latitude, playerPos.longitude, 250)
     );
     const venuesById = new Map(store.get('venuesById'));
     let nearbyVenues = new Set();
@@ -234,9 +234,12 @@ class MapScreen extends React.Component<Props, State> {
     store.set('vocabFromKeyword')(vocabFromKeyword);
   };
 
-  _onRegionChangeComplete = region => {
-    this.setState({ region });
-  };
+  _setRegion(region: Region) {
+    const map = this._map;
+    if (map) {
+      setTimeout(() => map.animateToRegion(region), 10);
+    }
+  }
 
   _getLocationAsync = async callback => {
     let { status } = await this._wrapPromise(
@@ -250,34 +253,31 @@ class MapScreen extends React.Component<Props, State> {
     let location = await this._wrapPromise(
       Location.getCurrentPositionAsync({})
     );
-    this.setState({ location });
     this.setState({
       playerPos: {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       },
     });
-    this.setState({
-      region: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-      },
+    this._setRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: LATITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA,
     });
     await this._wrapPromise(callback());
   };
 
   render() {
     const { navigation, store } = this.props;
-    const { isLoading, region } = this.state;
+    const { isLoading } = this.state;
 
     return (
       <View style={styles.container}>
         <MapView
+          ref={map => (this._map = map)}
           style={styles.map}
-          region={region}
-          onRegionChangeComplete={this._onRegionChangeComplete}
+          initialRegion={DEFAULT_REGION}
         >
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker venueId={venueId} key={venueId} />
