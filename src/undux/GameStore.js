@@ -22,6 +22,7 @@ type State = {|
 
   jpDisplayStyle: JpDisplayStyleType,
   playerID: ?string,
+  playerExp: number,
 |};
 
 const initialState: State = {
@@ -68,7 +69,8 @@ const initialState: State = {
   nearbyVenues: new Set(),
 
   jpDisplayStyle: JpDisplayStyle.KANA,
-  playerID: '',
+  playerID: null,
+  playerExp: 0,
 };
 
 const { withStore, Container } = createConnectedStore(initialState);

@@ -56,3 +56,23 @@ export const cancellablePromise = <T>(
     cancel: () => (hasCancelled = true),
   };
 };
+
+/**
+ * Returns the total exp needed to level up to the next level.
+ */
+export const getTotalExpTnl = (level: number): number => {
+  return Math.pow(level, 2) + level * 14;
+};
+
+/**
+ * Given the player's cumulative exp, returns the player's level and
+ * residual exp.
+ */
+export const getLevelAndExp = (exp: number): [number, number] => {
+  let level = 0;
+  while (exp >= 0) {
+    level++;
+    exp -= getTotalExpTnl(level);
+  }
+  return [level, getTotalExpTnl(level) + exp];
+};
