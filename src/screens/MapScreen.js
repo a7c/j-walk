@@ -7,15 +7,12 @@ import type {
   NavigationScreenProp,
   NavigationState,
 } from 'react-navigation';
-
 import type { VocabEntry } from 'src/entities/Types';
-
 import type { GameStoreProps } from 'src/undux/GameStore';
+import type { CancellablePromise } from 'src/Util';
 
 import { MapView, Location, Permissions } from 'expo';
-
 import React from 'react';
-
 import {
   ActivityIndicator,
   Image,
@@ -24,20 +21,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { fetchVenues } from 'src/async/VenueFetcher';
-
 import { VenueState } from 'src/entities/Types';
-
 import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
-
 import VenueMarker from 'src/components/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
+import { cancellablePromise } from 'src/Util';
 
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
@@ -88,6 +82,10 @@ type State = {
 };
 
 class MapScreen extends React.Component<Props, State> {
+  _headingSubscription = null;
+  _pendingPromises: Array<CancellablePromise<any>> = [];
+  _positionSubscription = null;
+
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Map',
     header: { visible: false },
@@ -98,8 +96,8 @@ class MapScreen extends React.Component<Props, State> {
     super(props);
     this.state = {
       region: {
-        latitude: 42.444782, //42.444977,
-        longitude: -76.484187, //-76.481091,
+        latitude: 42.444782,
+        longitude: -76.484187,
         latitudeDelta: 0.00287,
         longitudeDelta: 0.00131,
       },
@@ -114,21 +112,51 @@ class MapScreen extends React.Component<Props, State> {
     };
     Location.watchPositionAsync(
       { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 },
-      this.locationChanged
+      this._onLocationChanged
+    ).then(subscription => (this._positionSubscription = subscription));
+    Location.watchHeadingAsync(this._onHeadingChanged).then(
+      subscription => (this._headingSubscription = subscription)
     );
-    Location.watchHeadingAsync(this.headingChanged);
   }
 
   componentDidMount() {
     try {
-      this._populateMap();
-      this._getLocationAsync();
+      this._getLocationAsync(this._populateMap);
     } catch (error) {
       console.error(error);
     }
   }
 
-  locationChanged = location => {
+  componentWillUnmount() {
+    this._pendingPromises.map(p => p.cancel());
+    if (this._positionSubscription) {
+      this._positionSubscription.remove();
+    }
+    if (this._headingSubscription) {
+      this._headingSubscription.remove();
+    }
+  }
+
+  _addPromise = promise => {
+    this._pendingPromises = [...this._pendingPromises, promise];
+  };
+
+  _removePromise = promise => {
+    this._pendingPromises = this._pendingPromises.filter(p => p !== promise);
+  };
+
+  _wrapPromise = <T>(promise: Promise<T>): Promise<T> => {
+    const wrappedPromise = cancellablePromise(promise);
+    this._pendingPromises = [...this._pendingPromises, wrappedPromise];
+    return wrappedPromise.promise.finally(_ => {
+      this._pendingPromises = this._pendingPromises.filter(
+        p => p !== wrappedPromise
+      );
+      return promise;
+    });
+  };
+
+  _onLocationChanged = location => {
     this.setState({ location });
     this.setState({
       playerPos: {
@@ -138,20 +166,22 @@ class MapScreen extends React.Component<Props, State> {
     });
   };
 
-  headingChanged = heading => {
+  _onHeadingChanged = heading => {
     this.setState({
       playerHeading: heading.magHeading,
     });
   };
 
-  async _populateMap() {
+  _populateMap = async () => {
     const { store } = this.props;
     const { region } = this.state;
 
     this.setState({
       isLoading: true,
     });
-    const venues = await fetchVenues(region.latitude, region.longitude, 250);
+    const venues = await this._wrapPromise(
+      fetchVenues(region.latitude, region.longitude, 250)
+    );
     const venuesById = new Map(store.get('venuesById'));
     let nearbyVenues = new Set();
     for (const venue of venues) {
@@ -169,15 +199,14 @@ class MapScreen extends React.Component<Props, State> {
     const vocabById = new Map(store.get('vocabById'));
     const vocabFromKeyword = new Map(store.get('vocabFromKeyword'));
     for (const venue of venues) {
-      const keywords = await generateKeywordsForVenueCategory(
-        venuesById,
-        venue.id
+      const keywords = await this._wrapPromise(
+        generateKeywordsForVenueCategory(venuesById, venue.id)
       );
       for (const keyword of keywords) {
         let vocabCandidates = vocabFromKeyword.get(keyword);
         if (!vocabCandidates) {
-          const vocabEntries: Array<VocabEntry> = await generateVocabForKeyword(
-            keyword
+          const vocabEntries: Array<VocabEntry> = await this._wrapPromise(
+            generateVocabForKeyword(keyword)
           );
           for (const vocabEntry of vocabEntries) {
             if (!vocabById.has(vocabEntry.id)) {
@@ -203,20 +232,24 @@ class MapScreen extends React.Component<Props, State> {
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
-  }
+  };
 
   _onRegionChangeComplete = region => {
     this.setState({ region });
   };
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+  _getLocationAsync = async callback => {
+    let { status } = await this._wrapPromise(
+      Permissions.askAsync(Permissions.LOCATION)
+    );
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
       });
     }
-    let location = await Location.getCurrentPositionAsync({});
+    let location = await this._wrapPromise(
+      Location.getCurrentPositionAsync({})
+    );
     this.setState({ location });
     this.setState({
       playerPos: {
@@ -232,6 +265,7 @@ class MapScreen extends React.Component<Props, State> {
         longitudeDelta: LONGITUDE_DELTA,
       },
     });
+    await this._wrapPromise(callback());
   };
 
   render() {
