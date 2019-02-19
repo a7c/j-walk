@@ -90,13 +90,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   image: {
-    maxWidth: '80%',
-    maxHeight: '187%',
+    height: height * 0.15,
     resizeMode: 'contain',
   },
   imageTitle: {
     width: '100%',
-    height: '20%',
+    height: height * 0.3,
     marginTop: '10%',
   },
 });

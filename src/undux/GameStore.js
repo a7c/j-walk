@@ -29,7 +29,7 @@ const initialState: State = {
   // vocabById: new Map(),
   // TODO: this is test data
   // https://github.com/facebook/flow/issues/2221
-  // $FlowFixMe: this is really hard to type, so don't bother lol
+  // $FlowExpectedError: this is really hard to type, so don't bother lol
   vocabById: new Map(
     Object.entries({
       私: {
