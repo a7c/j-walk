@@ -12,6 +12,7 @@ import type { GameStoreProps } from 'src/undux/GameStore';
 import React from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -24,17 +25,18 @@ import Choices from 'src/components/flashcards/Choices';
 import VocabCard from 'src/components/flashcards/VocabCard';
 import { makeJpFormatter } from 'src/jp/Util';
 import { withStore } from 'src/undux/GameStore';
+import { shuffleArray } from 'src/Util';
 
-type Props = {
+type Props = {|
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
-};
+|};
 
-type State = {
+type State = {|
   // TODO: eventually we will want a smarter way of queuing words to review
   remainingWords: Array<string>,
   notEnoughWords: boolean,
-};
+|};
 
 class ReviewScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<*> = {
@@ -49,13 +51,38 @@ class ReviewScreen extends React.Component<Props, State> {
     const { store } = props;
     const learnedVocab = store.get('learnedVocab');
 
-    const remainingWords = [...learnedVocab];
+    const remainingWords = shuffleArray([...learnedVocab]);
 
     this.state = {
       remainingWords,
       notEnoughWords: learnedVocab.size < 4,
     };
   }
+
+  _handleCorrectAnswer = () => {
+    Alert.alert('Correct!');
+
+    const previousWord = this.state.remainingWords[0];
+    let newRemaining = this.state.remainingWords.slice(1);
+
+    // if there are no words left, generate a brand new vocab list
+    if (newRemaining.length === 0) {
+      newRemaining = shuffleArray([...this.props.store.get('learnedVocab')]);
+      // avoid giving the same word twice in a row
+      if (newRemaining[0] === previousWord) {
+        newRemaining.push(newRemaining[0]);
+        newRemaining.shift();
+      }
+    }
+
+    this.setState({
+      remainingWords: newRemaining,
+    });
+  };
+
+  _handleIncorrectAnswer = () => {
+    Alert.alert('Incorrect!');
+  };
 
   _renderBody() {
     if (this.state.notEnoughWords) {
@@ -89,10 +116,11 @@ class ReviewScreen extends React.Component<Props, State> {
         <VocabCard jp={japanese} />
         <Choices
           answer={english}
+          key={english}
           formatJp={formatJp}
           vocab={englishList}
-          // onCorrectAnswer={this._handleCorrectAnswer}
-          // onIncorrectAnswer={this._handleIncorrectAnswer}
+          onCorrectAnswer={this._handleCorrectAnswer}
+          onIncorrectAnswer={this._handleIncorrectAnswer}
         />
       </React.Fragment>
     );

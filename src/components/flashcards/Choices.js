@@ -13,7 +13,6 @@ import {
   Easing,
   StyleSheet,
   ListView,
-  Alert,
   Platform,
   TouchableHighlight,
 } from 'react-native';
@@ -25,15 +24,17 @@ import { shuffleArray } from 'src/Util';
  *  correct answer.
  */
 
-type Props = {
+type Props = {|
   answer: string,
   formatJp: string => string,
+  onCorrectAnswer: void => void,
+  onIncorrectAnswer: void => void,
   vocab: Array<string>,
-};
+|};
 
-type State = {
+type State = {|
   choices: Array<string>,
-};
+|};
 
 export default class Choices extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -59,62 +60,25 @@ export default class Choices extends React.Component<Props, State> {
     return choices;
   }
 
-  _onCorrectAnswer = () => {
-    Alert.alert('correct!');
-  };
-
-  _onIncorrectAnswer = () => {
-    Alert.alert('incorrect!');
+  _renderChoice = (choice: string) => {
+    return (
+      <TouchableHighlight
+        key={choice}
+        onPress={
+          choice === this.props.answer
+            ? this.props.onCorrectAnswer
+            : this.props.onIncorrectAnswer
+        }
+        underlayColor="transparent"
+      >
+        <Text style={styles.english}>{this.props.formatJp(choice)}</Text>
+      </TouchableHighlight>
+    );
   };
 
   // TODO: refactor to reduce repetition
   render() {
-    const { formatJp } = this.props;
-
-    return (
-      <View>
-        <TouchableHighlight
-          onPress={
-            this.state.choices[0] == this.props.answer
-              ? this._onCorrectAnswer
-              : this._onIncorrectAnswer
-          }
-          underlayColor="transparent"
-        >
-          <Text style={styles.english}>{formatJp(this.state.choices[0])}</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          onPress={
-            this.state.choices[1] == this.props.answer
-              ? this._onCorrectAnswer
-              : this._onIncorrectAnswer
-          }
-          underlayColor="transparent"
-        >
-          <Text style={styles.english}>{formatJp(this.state.choices[1])}</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          onPress={
-            this.state.choices[2] == this.props.answer
-              ? this._onCorrectAnswer
-              : this._onIncorrectAnswer
-          }
-          underlayColor="transparent"
-        >
-          <Text style={styles.english}>{formatJp(this.state.choices[2])}</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          onPress={
-            this.state.choices[3] == this.props.answer
-              ? this._onCorrectAnswer
-              : this._onIncorrectAnswer
-          }
-          underlayColor="transparent"
-        >
-          <Text style={styles.english}>{formatJp(this.state.choices[3])}</Text>
-        </TouchableHighlight>
-      </View>
-    );
+    return <View>{this.state.choices.map(this._renderChoice)}</View>;
   }
 }
 
