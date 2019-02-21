@@ -33,6 +33,8 @@ import VenueMarker from 'src/components/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
 import { cancellablePromise } from 'src/Util';
 
+const logger = getLogging();
+
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
   const lat1 = coords1.latitude;
