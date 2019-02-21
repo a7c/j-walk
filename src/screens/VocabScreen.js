@@ -27,6 +27,12 @@ import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { withStore } from 'src/undux/GameStore';
 
+//Logging insert from vocab.js
+import getLogging from "./logging/logging";
+import { actionToId, formatJapanese } from "./util/util";
+const logger = getLogging();
+//
+
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,

@@ -29,6 +29,12 @@ import { withStore } from 'src/undux/GameStore';
 import { EXP_REVIEW } from 'src/util/Constants';
 import { getLevelAndExp, getTotalExpTnl, shuffleArray } from 'src/Util';
 
+//Logging insert from review.js
+import getLogging from "../logging/logging";
+import { actionToId } from "../util/util";
+const logger = getLogging();
+//
+
 type Props = {|
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
@@ -87,6 +93,10 @@ class ReviewScreen extends React.Component<Props, State> {
   };
 
   _handleIncorrectAnswer = () => {
+    //Logging insert from review.js
+    logger.recordEvent(actionToId("REVIEW_WRONG"),
+      this.props.vocabById[this.state.remainingWords[0]].id);
+    //
     Alert.alert('Incorrect!');
   };
 

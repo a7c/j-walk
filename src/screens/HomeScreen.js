@@ -31,6 +31,9 @@ import {
 } from 'react-native';
 
 // TODO: logging
+import getLogging from './logging/logging';
+const logger = getLogging();
+
 // TODO: prompts (kana/romaji, playerId, navType)
 // TODO: persistent data
 
@@ -47,6 +50,8 @@ type Props = {
 };
 
 export default class HomeScreen extends React.Component<Props> {
+  _hasLoggedSession = false;
+
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Home',
     header: null,
@@ -54,6 +59,26 @@ export default class HomeScreen extends React.Component<Props> {
 
   render() {
     const { navigate } = this.props.navigation;
+
+    // Logging code copied from home.js
+    if (this.props.playerId !== "" && !this._hasLoggedSession) {
+      this._hasLoggedSession = true;
+      AsyncStorage.setItem('user_id', this.props.playerId).then(() => {
+        return logger.initialize(DEBUG_MODE, false);
+      }).then(() => {
+        this.props.dispatch(logAppStart());
+      });
+    }
+
+    if (this.props.playerId === "") {
+      _hasLoggedSession = true;
+      AsyncStorage.setItem('user_id', this.props.playerId).then(() => {
+        return logger.initialize(DEBUG_MODE, false);
+      }).then(() => {
+        this.props.dispatch(logAppStart());
+      });
+    }
+    //
 
     return (
       <View>
