@@ -22,6 +22,7 @@ import {
   Picker,
   Button,
   Alert,
+  Slider
 } from 'react-native';
 
 import { StackNavigator, NavigationActions } from 'react-navigation';
@@ -76,6 +77,19 @@ class SettingsScreen extends React.Component<Props> {
               editable={false}
               value={store.get('playerID')}
             />
+          </View>
+          <View style={styles.userIdFlex}>
+            <Text style={styles.saveText}>Off     </Text>
+            <Slider
+            style={{ width: 100, marginTop:10 }}
+            step={1}
+            value={getTestBool(store)}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor='#FFFFFF'
+            onValueChange={val => setTestBool(store, val)}
+            />
+            <Text style={styles.saveText}>  On</Text>
           </View>
           <Text style={styles.description}> Set Japanese Display Style </Text>
           <Picker
@@ -150,18 +164,45 @@ function clearData(store) {
   store.set('jpDisplayStyle')('KANA')
 }
 
+function setTestBool(store, val) {
+  if (val == 0) {
+    store.set('testIDGenerationBool')(false)
+  } else {
+    store.set('testIDGenerationBool')(true)
+  }
+}
+
+function getTestBool(store) {
+  if (store.get('testIDGenerationBool') == false) {
+    return 0
+  } else {
+    return 1
+  }
+}
+
 function generateID(store) {
   const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
                     'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-  const min = 10;
-  const max = 99;
+  const min = 100;
+  const max = 999;
 
-  const num = String(Math.round(min + Math.random() * (max - min)));
-  const letter = alphabet[Math.floor(Math.random()*alphabet.length)];
+  if (store.get('testIDGenerationBool') == false) {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const letter1 = alphabet[Math.floor(Math.random()*alphabet.length)];
+    const letter2 = alphabet[Math.floor(Math.random()*alphabet.length)];
+    const letter3 = alphabet[Math.floor(Math.random()*alphabet.length)];
 
-  const id = letter+num;
+    const id = letter1+letter2+letter3+num;
 
-  store.set('playerID')(id)
+    store.set('playerID')(id)
+  } else {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const test = "TEST"
+
+    const id = test+num;
+
+    store.set('playerID')(id)
+  }
 }
 
 export default withStore(SettingsScreen);
@@ -191,7 +232,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   description: {
-    marginTop: 40,
+    marginTop: 20,
     textAlign: 'center',
     fontFamily: 'krungthep',
     fontSize: 22,

@@ -23,6 +23,7 @@ type State = {|
   jpDisplayStyle: JpDisplayStyleType,
   playerID: ?string,
   playerExp: number,
+  testIDGenerationBool: boolean
 |};
 
 const initialState: State = {
@@ -71,6 +72,7 @@ const initialState: State = {
   jpDisplayStyle: JpDisplayStyle.KANA,
   playerID: null,
   playerExp: 0,
+  testIDGenerationBool: false
 };
 
 const { withStore, Container } = createConnectedStore(initialState);
