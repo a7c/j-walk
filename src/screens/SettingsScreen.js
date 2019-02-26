@@ -83,11 +83,11 @@ class SettingsScreen extends React.Component<Props> {
             <Slider
             style={{ width: 100, marginTop:10 }}
             step={1}
-            value={store.get('testBool')}
+            value={getTestBool(store)}
             minimumValue={0}
             maximumValue={1}
             minimumTrackTintColor='#FFFFFF'
-            onValueChange={val => store.set('testBool')(val)}
+            onValueChange={val => setTestBool(store, val)}
             />
             <Text style={styles.saveText}>  On</Text>
           </View>
@@ -164,13 +164,29 @@ function clearData(store) {
   store.set('jpDisplayStyle')('KANA')
 }
 
+function setTestBool(store, val) {
+  if (val == 0) {
+    store.set('testIDGenerationBool')(false)
+  } else {
+    store.set('testIDGenerationBool')(true)
+  }
+}
+
+function getTestBool(store) {
+  if (store.get('testIDGenerationBool') == false) {
+    return 0
+  } else {
+    return 1
+  }
+}
+
 function generateID(store) {
   const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
                     'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
   const min = 100;
   const max = 999;
 
-  if (store.get('testBool') == 0) {
+  if (store.get('testIDGenerationBool') == false) {
     const num = String(Math.round(min + Math.random() * (max - min)));
     const letter1 = alphabet[Math.floor(Math.random()*alphabet.length)];
     const letter2 = alphabet[Math.floor(Math.random()*alphabet.length)];
