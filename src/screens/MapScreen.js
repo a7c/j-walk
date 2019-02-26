@@ -33,6 +33,12 @@ import VenueMarker from 'src/components/map/VenueMarker';
 import { withStore } from 'src/undux/GameStore';
 import { cancellablePromise } from 'src/Util';
 
+//Logging Insert
+import getLogging from "./logging/logging";
+import { actionToId } from "./util/util";
+const logger = getLogging();
+//
+
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
   const lat1 = coords1.latitude;
@@ -253,6 +259,12 @@ class MapScreen extends React.Component<Props, State> {
     let location = await this._wrapPromise(
       Location.getCurrentPositionAsync({})
     );
+
+    //Logging Insert from map.js
+    logger.recordEvent(actionToId("TRACK_POSITION"),
+      `${position.coords.latitude};${position.coords.longitude}`);
+    //
+
     this.setState({
       playerPos: {
         latitude: location.coords.latitude,

@@ -76,3 +76,21 @@ export const getLevelAndExp = (exp: number): [number, number] => {
   }
   return [level, getTotalExpTnl(level) + exp];
 };
+
+export const actionToId = (action) => {
+  switch (action) {
+    case playerActions.LEARN_VOCAB: return 1;
+    case playerActions.LEARN_VOCAB_FROM_VENUE: return 2;
+    case playerActions.REVIEW_VOCAB: return 3;
+    case playerActions.PASS_CHALLENGE: return 4;
+    case playerActions.COMPLETE_SENTENCE: return 5;
+    case playerActions.GAIN_EXP: return 6;
+    case "LEVEL_UP": return 7;
+    case "TRACK_POSITION": return 8;
+    case "REVIEW_WRONG": return 9;
+    case mapActions.ATTACH_VOCAB_TO_VENUE: return 10;
+    case mapActions.SET_VENUE_TO_CHALLENGE: return 11;
+    case "JP_DISPLAY_STYLE": return 12;
+    default: return 0;
+  }
+}
