@@ -22,14 +22,15 @@ import {
   Picker,
   Button,
   Alert,
-  Slider
+  Slider,
 } from 'react-native';
 
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
-import { withStore } from 'src/undux/GameStore';
-
 import { JpDisplayStyle } from 'src/jp/Types';
+import { logJpDisplayStyle } from 'src/logging/LogAction';
+import { withStore } from 'src/undux/GameStore';
+import { generateUserID, generateTestUserID } from 'src/util/Util';
 
 type Props = {
   ...GameStoreProps,
@@ -64,9 +65,7 @@ class SettingsScreen extends React.Component<Props> {
           <Text style={styles.description}> Set User ID </Text>
           <View style={styles.userIdFlex}>
             <TouchableOpacity
-              onPress={() =>
-                generateID(store)
-              }
+              onPress={() => generateID(store)}
               style={styles.idButton}
               color="#FFFFFF"
             >
@@ -79,33 +78,41 @@ class SettingsScreen extends React.Component<Props> {
             />
           </View>
           <View style={styles.userIdFlex}>
-            <Text style={styles.saveText}>Off     </Text>
+            <Text style={styles.saveText}>Off </Text>
             <Slider
-            style={{ width: 100, marginTop:10 }}
-            step={1}
-            value={getTestBool(store)}
-            minimumValue={0}
-            maximumValue={1}
-            minimumTrackTintColor='#FFFFFF'
-            onValueChange={val => setTestBool(store, val)}
+              style={{ width: 100, marginTop: 10 }}
+              step={1}
+              value={getTestBool(store)}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#FFFFFF"
+              onValueChange={val => setTestBool(store, val)}
             />
-            <Text style={styles.saveText}>  On</Text>
+            <Text style={styles.saveText}> On</Text>
           </View>
           <Text style={styles.description}> Set Japanese Display Style </Text>
           <Picker
             selectedValue={store.get('jpDisplayStyle')}
             style={styles.picker}
-            onValueChange={(itemValue, itemIndex) =>
-              store.set('jpDisplayStyle')(itemValue)
-            }
+            onValueChange={(itemValue, itemIndex) => {
+              store.set('jpDisplayStyle')(itemValue);
+              logJpDisplayStyle(itemValue);
+            }}
             itemStyle={{
               backgroundColor: '#FFA37F',
               fontFamily: 'krungthep',
             }}
           >
-            <Picker.Item label="Kana" value="KANA" style={styles.item} />
-            <Picker.Item label="Kanji" value="KANJI" style={styles.item} />
-            <Picker.Item label="Romaji" value="ROMAJI" style={styles.item} />
+            <Picker.Item
+              label="Kana"
+              value={JpDisplayStyle.KANA}
+              style={styles.item}
+            />
+            <Picker.Item
+              label="Romaji"
+              value={JpDisplayStyle.KANJI}
+              style={styles.item}
+            />
           </Picker>
           <TouchableOpacity
             onPress={() =>
@@ -141,8 +148,7 @@ class SettingsScreen extends React.Component<Props> {
                   },
                   {
                     text: 'Yes',
-                    onPress: () =>
-                      clearData(store)
+                    onPress: () => clearData(store),
                   },
                 ],
                 { cancelable: false }
@@ -160,48 +166,31 @@ class SettingsScreen extends React.Component<Props> {
 }
 
 function clearData(store) {
-  store.set('playerID')('')
-  store.set('jpDisplayStyle')('KANA')
+  store.set('playerID')('');
+  store.set('jpDisplayStyle')('KANA');
 }
 
 function setTestBool(store, val) {
   if (val == 0) {
-    store.set('testIDGenerationBool')(false)
+    store.set('testIDGenerationBool')(false);
   } else {
-    store.set('testIDGenerationBool')(true)
+    store.set('testIDGenerationBool')(true);
   }
 }
 
 function getTestBool(store) {
   if (store.get('testIDGenerationBool') == false) {
-    return 0
+    return 0;
   } else {
-    return 1
+    return 1;
   }
 }
 
 function generateID(store) {
-  const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
-                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-  const min = 100;
-  const max = 999;
-
-  if (store.get('testIDGenerationBool') == false) {
-    const num = String(Math.round(min + Math.random() * (max - min)));
-    const letter1 = alphabet[Math.floor(Math.random()*alphabet.length)];
-    const letter2 = alphabet[Math.floor(Math.random()*alphabet.length)];
-    const letter3 = alphabet[Math.floor(Math.random()*alphabet.length)];
-
-    const id = letter1+letter2+letter3+num;
-
-    store.set('playerID')(id)
+  if (store.get('testIDGenerationBool')) {
+    store.set('playerID')(generateUserID());
   } else {
-    const num = String(Math.round(min + Math.random() * (max - min)));
-    const test = "TEST"
-
-    const id = test+num;
-
-    store.set('playerID')(id)
+    store.set('playerID')(generateTestUserID());
   }
 }
 

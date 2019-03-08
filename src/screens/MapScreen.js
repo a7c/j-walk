@@ -9,7 +9,7 @@ import type {
 } from 'react-navigation';
 import type { VocabEntry } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
-import type { CancellablePromise } from 'src/Util';
+import type { CancellablePromise } from 'src/util/Util';
 
 import { MapView, Location, Permissions } from 'expo';
 import React from 'react';
@@ -30,14 +30,9 @@ import {
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
 import VenueMarker from 'src/components/map/VenueMarker';
+import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
-import { cancellablePromise } from 'src/Util';
-
-//Logging Insert
-import getLogging from "./logging/logging";
-import { actionToId } from "./util/util";
-const logger = getLogging();
-//
+import { cancellablePromise } from 'src/util/Util';
 
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
@@ -233,6 +228,7 @@ class MapScreen extends React.Component<Props, State> {
         // Set the venues again here to make sure map gets re-rendered
         // after each venue is ready
         store.set('venuesById')(new Map(venuesById));
+        logAttachVocabToVenue(vocabForVenue, venue.id);
         break;
       }
     }
@@ -259,11 +255,7 @@ class MapScreen extends React.Component<Props, State> {
     let location = await this._wrapPromise(
       Location.getCurrentPositionAsync({})
     );
-
-    //Logging Insert from map.js
-    logger.recordEvent(actionToId("TRACK_POSITION"),
-      `${position.coords.latitude};${position.coords.longitude}`);
-    //
+    logPosition(location.coords.latitude, location.coords.longitude);
 
     this.setState({
       playerPos: {
@@ -338,6 +330,14 @@ class MapScreen extends React.Component<Props, State> {
             size="large"
             color="#FF8859"
           />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={this._populateMap}>
+            <Image
+              style={styles.refreshButton}
+              source={require('assets/images/map/search_button.png')}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );

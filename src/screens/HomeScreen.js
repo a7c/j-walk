@@ -3,24 +3,18 @@
  */
 
 import type { RelativeImageStub } from 'react-native';
-// import type {
-//   LayoutStyle,
-//   TransformStyle,
-//   ShadowStyle,
-//   ViewStyle,
-//   TextStyle,
-//   ImageStyle,
-//   DangerouslyImpreciseStyle,
-// } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
   NavigationState,
 } from 'react-navigation';
 
+import type { GameStoreProps } from 'src/undux/GameStore';
+
 import React from 'react';
 import {
   Alert,
+  AsyncStorage,
   Button,
   Dimensions,
   Image,
@@ -30,11 +24,13 @@ import {
   View,
 } from 'react-native';
 
-// TODO: logging
-import getLogging from './logging/logging';
+import getLogging from 'src/logging/Logging';
+import { withStore } from 'src/undux/GameStore';
+// TODO: switch this to non-test version during user study?
+import { generateTestUserID } from 'src/util/Util';
+
 const logger = getLogging();
 
-// TODO: prompts (kana/romaji, playerId, navType)
 // TODO: persistent data
 
 const createButton = (img: RelativeImageStub, onPress: () => void) => {
@@ -46,10 +42,11 @@ const createButton = (img: RelativeImageStub, onPress: () => void) => {
 };
 
 type Props = {
+  ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
 };
 
-export default class HomeScreen extends React.Component<Props> {
+class HomeScreen extends React.Component<Props> {
   _hasLoggedSession = false;
 
   static navigationOptions: NavigationScreenConfig<*> = {
@@ -57,28 +54,31 @@ export default class HomeScreen extends React.Component<Props> {
     header: null,
   };
 
+  componentDidMount() {
+    const { store } = this.props;
+    let playerID = store.get('playerID');
+    if (playerID == null) {
+      playerID = generateTestUserID();
+      store.set('playerID')(playerID);
+    }
+    if (!this._hasLoggedSession) {
+      AsyncStorage.setItem('user_id', playerID)
+        .then(() => {
+          logger.initialize(
+            false /* debug? */,
+            false /* suppressConsoleOutput? */
+          );
+        })
+        .then(() => {
+          // treat entire game as one page + one level
+          logger.recordPageLoad();
+          logger.recordLevelStart('game start', store.get('jpDisplayStyle'));
+        });
+    }
+  }
+
   render() {
     const { navigate } = this.props.navigation;
-
-    // Logging code copied from home.js
-    if (this.props.playerId !== "" && !this._hasLoggedSession) {
-      this._hasLoggedSession = true;
-      AsyncStorage.setItem('user_id', this.props.playerId).then(() => {
-        return logger.initialize(DEBUG_MODE, false);
-      }).then(() => {
-        this.props.dispatch(logAppStart());
-      });
-    }
-
-    if (this.props.playerId === "") {
-      _hasLoggedSession = true;
-      AsyncStorage.setItem('user_id', this.props.playerId).then(() => {
-        return logger.initialize(DEBUG_MODE, false);
-      }).then(() => {
-        this.props.dispatch(logAppStart());
-      });
-    }
-    //
 
     return (
       <View>
@@ -104,6 +104,8 @@ export default class HomeScreen extends React.Component<Props> {
     );
   }
 }
+
+export default withStore(HomeScreen);
 
 const { height, width } = Dimensions.get('window');
 

@@ -25,15 +25,14 @@ import { NavigationActions } from 'react-navigation';
 import Choices from 'src/components/flashcards/Choices';
 import VocabCard from 'src/components/flashcards/VocabCard';
 import { makeJpFormatter } from 'src/jp/Util';
+import {
+  logGainExp,
+  logReviewVocab,
+  logReviewWrong,
+} from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 import { EXP_REVIEW } from 'src/util/Constants';
-import { getLevelAndExp, getTotalExpTnl, shuffleArray } from 'src/Util';
-
-//Logging insert from review.js
-import getLogging from "../logging/logging";
-import { actionToId } from "../util/util";
-const logger = getLogging();
-//
+import { getLevelAndExp, getTotalExpTnl, shuffleArray } from 'src/util/Util';
 
 type Props = {|
   ...GameStoreProps,
@@ -70,7 +69,9 @@ class ReviewScreen extends React.Component<Props, State> {
   _handleCorrectAnswer = () => {
     const { store } = this.props;
     const { remainingWords } = this.state;
+
     Alert.alert('Correct!');
+    logReviewVocab(this.state.remainingWords[0]);
 
     const previousWord = remainingWords[0];
     let newRemaining = remainingWords.slice(1);
@@ -89,18 +90,18 @@ class ReviewScreen extends React.Component<Props, State> {
       remainingWords: newRemaining,
     });
 
+    logGainExp(store.get('playerExp'), EXP_REVIEW);
     store.set('playerExp')(store.get('playerExp') + EXP_REVIEW);
   };
 
   _handleIncorrectAnswer = () => {
-    //Logging insert from review.js
-    logger.recordEvent(actionToId("REVIEW_WRONG"),
-      this.props.vocabById[this.state.remainingWords[0]].id);
-    //
     Alert.alert('Incorrect!');
+    logReviewWrong(this.state.remainingWords[0]);
   };
 
-  _onPressExp = () => {};
+  _onPressExp = () => {
+    /* TODO */
+  };
 
   _renderBody() {
     if (this.state.notEnoughWords) {

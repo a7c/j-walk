@@ -77,20 +77,61 @@ export const getLevelAndExp = (exp: number): [number, number] => {
   return [level, getTotalExpTnl(level) + exp];
 };
 
-export const actionToId = (action) => {
-  switch (action) {
-    case playerActions.LEARN_VOCAB: return 1;
-    case playerActions.LEARN_VOCAB_FROM_VENUE: return 2;
-    case playerActions.REVIEW_VOCAB: return 3;
-    case playerActions.PASS_CHALLENGE: return 4;
-    case playerActions.COMPLETE_SENTENCE: return 5;
-    case playerActions.GAIN_EXP: return 6;
-    case "LEVEL_UP": return 7;
-    case "TRACK_POSITION": return 8;
-    case "REVIEW_WRONG": return 9;
-    case mapActions.ATTACH_VOCAB_TO_VENUE: return 10;
-    case mapActions.SET_VENUE_TO_CHALLENGE: return 11;
-    case "JP_DISPLAY_STYLE": return 12;
-    default: return 0;
+const _generateUserID = (isTest: boolean) => {
+  const alphabet = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+  ];
+  const min = 100;
+  const max = 999;
+
+  if (isTest) {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const test = 'TEST';
+    return test + num;
+  } else {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const letter1 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    const letter2 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    const letter3 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    return letter1 + letter2 + letter3 + num;
   }
-}
+};
+
+/**
+ * Generates a random user ID (for logging and user study purposes).
+ */
+export const generateUserID = () => {
+  return _generateUserID(false);
+};
+
+/**
+ * Generates a random test user ID. These IDs are prefixed with 'TEST'.
+ */
+export const generateTestUserID = () => {
+  return _generateUserID(true);
+};

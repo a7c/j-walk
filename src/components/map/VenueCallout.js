@@ -11,6 +11,7 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 
 import { VenueState } from 'src/entities/Types';
 import { makeJpFormatter } from 'src/jp/Util';
+import { logLearnVocabFromVenue } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
@@ -38,7 +39,7 @@ class VenueCallout extends React.Component<Props, State> {
   }
 
   _onLearnPressed = () => {
-    const { store } = this.props;
+    const { store, venueId } = this.props;
     const vocabById = store.get('vocabById');
     if (!this._venue.vocab) {
       throw new Error("Cannot learn if there's no vocab!");
@@ -53,6 +54,8 @@ class VenueCallout extends React.Component<Props, State> {
     const learnedVocab = store.get('learnedVocab');
     const newLearnedVocab = new Set(learnedVocab).add(vocab.id);
     store.set('learnedVocab')(newLearnedVocab);
+    logLearnVocabFromVenue(vocab.id, venueId);
+
     this._venue.state = VenueState.HIDDEN;
     store.set('venuesById')(new Map(store.get('venuesById')));
 
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     backgroundColor: 'white',
     flexGrow: 0.2,
-    flex: 0
+    flex: 0,
   },
   venueLOCKED: {
     fontFamily: 'krungthep',

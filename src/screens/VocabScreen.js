@@ -27,12 +27,6 @@ import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { withStore } from 'src/undux/GameStore';
 
-//Logging insert from vocab.js
-import getLogging from "./logging/logging";
-import { actionToId, formatJapanese } from "./util/util";
-const logger = getLogging();
-//
-
 type Props = {
   ...GameStoreProps,
   navigation: NavigationScreenProp<NavigationState>,
@@ -79,9 +73,7 @@ class VocabScreen extends React.Component<Props, State> {
             if (vocab != undefined) {
               return (
                 <Text style={styles.item}>
-                  {vocab.id +
-                    ' = ' +
-                    vocab.english}
+                  {vocab.id + ' = ' + vocab.english}
                 </Text>
               );
             } else {

@@ -56,7 +56,6 @@ class VenueMarker extends React.Component<Props, State> {
     const height = 64;
 
     return (
-      // TODO: replace with image
       <MapView.Marker
         coordinate={{
           latitude: this._venue.lat,

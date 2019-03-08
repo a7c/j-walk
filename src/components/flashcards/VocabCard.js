@@ -5,7 +5,7 @@
 import React from 'react';
 import { Text, View, ImageBackground, StyleSheet } from 'react-native';
 
-import { getRandomInt } from 'src/Util';
+import { getRandomInt } from 'src/util/Util';
 
 // TODO: these should be converted to locally stored images
 const sushiList = [

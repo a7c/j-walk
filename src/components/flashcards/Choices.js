@@ -17,7 +17,7 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-import { shuffleArray } from 'src/Util';
+import { shuffleArray } from 'src/util/Util';
 
 /**
  *  Component that generates 4 multiple choice answer buttons, one of which is the
