@@ -62,19 +62,23 @@ class HomeScreen extends React.Component<Props> {
       store.set('playerID')(playerID);
     }
     if (!this._hasLoggedSession) {
-      AsyncStorage.setItem('user_id', playerID)
-        .then(() => {
-          logger.initialize(
-            false /* debug? */,
-            false /* suppressConsoleOutput? */
-          );
-        })
-        .then(() => {
-          // treat entire game as one page + one level
-          logger.recordPageLoad();
-          logger.recordLevelStart('game start', store.get('jpDisplayStyle'));
-        });
+      this._initLogging(playerID);
     }
+  }
+
+  async _initLogging(playerID) {
+    console.log('try init logging');
+    await AsyncStorage.setItem('user_id', playerID);
+    await logger.initialize(
+      false /* debug? */,
+      false /* suppressConsoleOutput? */
+    );
+    // treat entire game as one page + one level
+    logger.recordPageLoad();
+    logger.recordLevelStart(
+      'game start',
+      this.props.store.get('jpDisplayStyle')
+    );
   }
 
   render() {

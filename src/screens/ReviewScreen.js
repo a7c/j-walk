@@ -24,7 +24,9 @@ import { NavigationActions } from 'react-navigation';
 
 import Choices from 'src/components/flashcards/Choices';
 import VocabCard from 'src/components/flashcards/VocabCard';
+import Header from 'src/components/shared/Header';
 import { makeJpFormatter } from 'src/jp/Util';
+import getLogging from 'src/logging/Logging';
 import {
   logGainExp,
   logReviewVocab,
@@ -33,6 +35,8 @@ import {
 import { withStore } from 'src/undux/GameStore';
 import { EXP_REVIEW } from 'src/util/Constants';
 import { getLevelAndExp, getTotalExpTnl, shuffleArray } from 'src/util/Util';
+
+const logger = getLogging();
 
 type Props = {|
   ...GameStoreProps,
@@ -99,10 +103,6 @@ class ReviewScreen extends React.Component<Props, State> {
     logReviewWrong(this.state.remainingWords[0]);
   };
 
-  _onPressExp = () => {
-    /* TODO */
-  };
-
   _renderBody() {
     if (this.state.notEnoughWords) {
       return (
@@ -147,46 +147,10 @@ class ReviewScreen extends React.Component<Props, State> {
 
   render() {
     const { navigation, store } = this.props;
-    const [level, exp] = getLevelAndExp(store.get('playerExp'));
-    const expBar = {
-      width: (exp / getTotalExpTnl(level)) * 126,
-      height: 12,
-      position: 'relative',
-      top: 5,
-      left: 45,
-    };
 
     return (
       <View style={styles.root}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.dispatch(NavigationActions.back())}
-          >
-            <Image source={require('assets/images/text/back.png')} />
-          </TouchableOpacity>
-          <Text style={styles.stats}>
-            {/* need to offset number for kiwano apple font lol */}
-            {'LV: ' + (level - 1)}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {} /* TODO */}
-            underlayColor="transparent"
-            style={styles.emptyBar}
-          >
-            <ImageBackground
-              source={require('assets/images/icons/empty_bar.png')}
-              style={styles.emptyBar}
-            >
-              <View>
-                <Image
-                  style={expBar}
-                  source={require('assets/images/icons/filling.png')}
-                />
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
-        </View>
+        <Header playerExp={store.get('playerExp')} navigation={navigation} />
         {this._renderBody()}
       </View>
     );
@@ -199,34 +163,6 @@ const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
     paddingTop: 40,
-  },
-  header: {
-    alignItems: 'flex-start',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    position: 'absolute',
-    top: 35,
-    left: 20,
-    width: '85%',
-    zIndex: 2,
-  },
-  backButton: {
-    width: 70,
-    height: 30,
-  },
-  stats: {
-    fontFamily: 'kiwano-apple',
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 20,
-    width: 50,
-    height: 30,
-  },
-  emptyBar: {
-    width: 173.5,
-    height: 22,
   },
   levelUp: {
     width: 350,

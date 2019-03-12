@@ -27,7 +27,8 @@ export default function getLogging() {
     var _gameId = 777;
     var _abValueSet = false;
     var _abStoredValue = null;
-    var _versionId = 1;
+    /* NOTE: important to update version when re-running the study! */
+    var _versionId = 2;
     var _debugMode = false;
     var _userId = '';
     var _sessionId = '';
@@ -53,6 +54,7 @@ export default function getLogging() {
         return;
       }
       _userId = await AsyncStorage.getItem('user_id');
+      trace(_userId);
       if (!_userId) {
         _userId = generateRandomString(40);
       }
@@ -246,6 +248,7 @@ export default function getLogging() {
         '&dynamic_quest_id=' +
         _dynamicQuestId;
       sendRequest('recordLevelStart', serverURL);
+      trace('record level start');
       _sessionSeqId++;
       _questSeqId = 1;
       _questId = questId;

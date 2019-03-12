@@ -30,6 +30,7 @@ import {
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
 import VenueMarker from 'src/components/map/VenueMarker';
+import Header from 'src/components/shared/Header';
 import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 import { cancellablePromise } from 'src/util/Util';
@@ -316,14 +317,11 @@ class MapScreen extends React.Component<Props, State> {
             />
           </MapView.Marker>
         </MapView>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.dispatch(NavigationActions.back())}
-          >
-            <Image source={require('assets/images/text/home.png')} />
-          </TouchableOpacity>
-        </View>
+        <Header
+          color={'black'}
+          playerExp={store.get('playerExp')}
+          navigation={navigation}
+        />
         <View style={styles.loading}>
           <ActivityIndicator
             animating={isLoading}

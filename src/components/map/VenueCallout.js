@@ -90,12 +90,12 @@ class VenueCallout extends React.Component<Props, State> {
             <Text style={styles.venue}>{venueNameText}</Text>
             <Text style={styles.category}>{categoryText}</Text>
             <Text style={styles.kana}>{vocabReading}</Text>
+            {/* TODO: factor out into own component? */}
+            <Button onPress={this._onLearnPressed} title={'Learn'} />
           </View>
           <View style={styles.arrowBorder} />
           <View style={styles.arrow} />
         </View>
-        {/* TODO: factor out into own component? */}
-        <Button onPress={this._onLearnPressed} title={'Learn'} />
       </MapView.Callout>
     );
   }
