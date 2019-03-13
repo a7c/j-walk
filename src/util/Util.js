@@ -77,6 +77,13 @@ export const getLevelAndExp = (exp: number): [number, number] => {
   return [level, getTotalExpTnl(level) + exp];
 };
 
+/**
+ * Given the player's cumulative exp, returns the player's level.
+ */
+export const getLevel = (exp: number): number => {
+  return getLevelAndExp(exp)[0];
+};
+
 const _generateUserID = (isTest: boolean) => {
   const alphabet = [
     'A',

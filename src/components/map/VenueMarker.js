@@ -23,6 +23,8 @@ const sushiIcons = [
 
 type Props = {|
   ...GameStoreProps,
+  /** Whether the venue is in range for the player to interact with */
+  inRange: boolean,
   venueId: string,
 |};
 
@@ -46,14 +48,17 @@ class VenueMarker extends React.Component<Props, State> {
   }
 
   render() {
+    const { inRange, venueId } = this.props;
+
     if (this._venue.state === VenueState.HIDDEN) {
       return null;
     }
 
-    const imageIndex = parseInt(this.props.venueId, 16) % sushiIcons.length;
+    const imageIndex = parseInt(venueId, 16) % sushiIcons.length;
 
-    const width = 64;
-    const height = 64;
+    // make marker larger as an indication that it's in range
+    const width = inRange ? 96 : 64;
+    const height = inRange ? 96 : 64;
 
     return (
       <MapView.Marker
@@ -72,7 +77,7 @@ class VenueMarker extends React.Component<Props, State> {
             zIndex: 0,
           }}
         />
-        <VenueCallout venueId={this.props.venueId} />
+        <VenueCallout canInteract={inRange} venueId={venueId} />
       </MapView.Marker>
     );
   }

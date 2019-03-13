@@ -16,6 +16,7 @@ import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
   ...GameStoreProps,
+  canInteract: boolean,
   venueId: string,
 |};
 
@@ -65,7 +66,7 @@ class VenueCallout extends React.Component<Props, State> {
   };
 
   render() {
-    const { store } = this.props;
+    const { canInteract, store } = this.props;
     const vocabById = store.get('vocabById');
 
     const venueNameText = <Text style={styles.name}>{this._venue.name}</Text>;
@@ -81,7 +82,11 @@ class VenueCallout extends React.Component<Props, State> {
       }
     }
 
-    // TODO: callout button
+    const button = canInteract ? (
+      <Button onPress={this._onLearnPressed} title={'Learn'} />
+    ) : (
+      <Button disabled={true} onPress={() => {}} title={'Too far!'} />
+    );
 
     return (
       <MapView.Callout tooltip style={styles.callout}>
@@ -90,8 +95,7 @@ class VenueCallout extends React.Component<Props, State> {
             <Text style={styles.venue}>{venueNameText}</Text>
             <Text style={styles.category}>{categoryText}</Text>
             <Text style={styles.kana}>{vocabReading}</Text>
-            {/* TODO: factor out into own component? */}
-            <Button onPress={this._onLearnPressed} title={'Learn'} />
+            {button}
           </View>
           <View style={styles.arrowBorder} />
           <View style={styles.arrow} />

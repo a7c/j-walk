@@ -33,7 +33,7 @@ import VenueMarker from 'src/components/map/VenueMarker';
 import Header from 'src/components/shared/Header';
 import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
-import { cancellablePromise } from 'src/util/Util';
+import { cancellablePromise, getLevel } from 'src/util/Util';
 
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
@@ -74,6 +74,13 @@ const DEFAULT_REGION = {
   latitudeDelta: 0.00287,
   longitudeDelta: 0.00131,
 };
+
+/* at level 1, the player must be this close to a venue in order to interact
+ * with it (in meters) */
+const DEFAULT_INTERACT_RADIUS = 50;
+/* buffer distance added to interact radius so players can interact with
+ * venues even if they're not quite close enough */
+const INTERACT_RADIUS_BUFFER = 10;
 
 type Props = {
   ...GameStoreProps,
@@ -273,6 +280,28 @@ class MapScreen extends React.Component<Props, State> {
     await this._wrapPromise(callback());
   };
 
+  _getInteractRadius = () => {
+    return (
+      DEFAULT_INTERACT_RADIUS + 5 * getLevel(this.props.store.get('playerExp'))
+    );
+  };
+
+  _isVenueInRange = venueId => {
+    const venue = this.props.store.get('venuesById').get(venueId);
+    if (!venue) {
+      return false;
+    }
+    const coords = {
+      latitude: venue.lat,
+      longitude: venue.lng,
+    };
+    const BUFFER = 10;
+    return (
+      getDistanceFromLatLng(this.state.playerPos, coords) <
+      this._getInteractRadius() + INTERACT_RADIUS_BUFFER
+    );
+  };
+
   render() {
     const { navigation, store } = this.props;
     const { isLoading } = this.state;
@@ -285,7 +314,11 @@ class MapScreen extends React.Component<Props, State> {
           initialRegion={DEFAULT_REGION}
         >
           {Array.from(store.get('nearbyVenues')).map(venueId => (
-            <VenueMarker venueId={venueId} key={venueId} />
+            <VenueMarker
+              venueId={venueId}
+              key={venueId}
+              inRange={this._isVenueInRange(venueId)}
+            />
           ))}
           <MapView.Marker
             coordinate={this.state.playerPos}
@@ -316,6 +349,18 @@ class MapScreen extends React.Component<Props, State> {
               }}
             />
           </MapView.Marker>
+          <MapView.Circle
+            // workaround to make the circle re-render when the position updates
+            // source: https://github.com/react-community/react-native-maps/issues/283#issuecomment-227812817
+            key={(
+              this.state.playerPos.latitude + this.state.playerPos.longitude
+            ).toString()}
+            center={this.state.playerPos}
+            radius={this._getInteractRadius()}
+            strokeColor={'#00cccc80'}
+            strokeWidth={2}
+            fillColor={'#00ffff20'}
+          />
         </MapView>
         <Header
           color={'black'}
