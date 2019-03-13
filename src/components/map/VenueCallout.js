@@ -24,6 +24,7 @@ type State = {||};
 
 class VenueCallout extends React.Component<Props, State> {
   _venue: Venue;
+  _formatJp: string => string;
 
   constructor(props: Props) {
     super(props);
@@ -37,6 +38,8 @@ class VenueCallout extends React.Component<Props, State> {
         `Tried to init VenueCallout with invalid venue id ${venueId}`
       );
     }
+
+    this._formatJp = makeJpFormatter(store.get('jpDisplayStyle'));
   }
 
   _onLearnPressed = () => {
@@ -60,8 +63,7 @@ class VenueCallout extends React.Component<Props, State> {
     this._venue.state = VenueState.HIDDEN;
     store.set('venuesById')(new Map(store.get('venuesById')));
 
-    const formatJp = makeJpFormatter(store.get('jpDisplayStyle'));
-    const vocabText = `${formatJp(vocab.reading)}\n${vocab.english}`;
+    const vocabText = `${this._formatJp(vocab.reading)}\n${vocab.english}`;
     Alert.alert(`Learned a new word!`, `${vocabText}`);
   };
 
@@ -78,7 +80,7 @@ class VenueCallout extends React.Component<Props, State> {
     if (this._venue.vocab) {
       const vocab = vocabById.get(this._venue.vocab);
       if (vocab) {
-        vocabReading = vocab.reading;
+        vocabReading = this._formatJp(vocab.reading);
       }
     }
 

@@ -4,9 +4,11 @@
 
 import type { Venue, VocabEntry } from 'src/entities/Types';
 import type { JpDisplayStyleType } from 'src/jp/Types';
+import type { PlayModeType } from 'src/util/Types';
 import type { Effects, Store } from 'undux';
 
 import { JpDisplayStyle } from 'src/jp/Types';
+import { PlayMode } from 'src/util/Types';
 import { createConnectedStore } from 'undux';
 
 type State = {|
@@ -23,6 +25,7 @@ type State = {|
   jpDisplayStyle: JpDisplayStyleType,
   playerID: ?string,
   playerExp: number,
+  playMode: PlayModeType,
   testIDGenerationBool: boolean,
 |};
 
@@ -72,6 +75,7 @@ const initialState: State = {
   jpDisplayStyle: JpDisplayStyle.KANA,
   playerID: null,
   playerExp: 0,
+  playMode: PlayMode.ROAMING,
   testIDGenerationBool: false,
 };
 

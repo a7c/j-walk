@@ -34,6 +34,7 @@ import Header from 'src/components/shared/Header';
 import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 import { cancellablePromise, getLevel } from 'src/util/Util';
+import { PlayMode } from 'src/util/Types';
 
 // adapted from https://stackoverflow.com/a/21623206
 const getDistanceFromLatLng = (coords1, coords2) => {
@@ -120,13 +121,16 @@ class MapScreen extends React.Component<Props, State> {
       },
       playerHeading: 0,
     };
-    Location.watchPositionAsync(
-      { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 },
-      this._onLocationChanged
-    ).then(subscription => (this._positionSubscription = subscription));
-    Location.watchHeadingAsync(this._onHeadingChanged).then(
-      subscription => (this._headingSubscription = subscription)
-    );
+
+    if (this.props.store.get('playMode') === PlayMode.ROAMING) {
+      Location.watchPositionAsync(
+        { enableHighAccuracy: true, timeInterval: 2000, distanceInterval: 1 },
+        this._onLocationChanged
+      ).then(subscription => (this._positionSubscription = subscription));
+      Location.watchHeadingAsync(this._onHeadingChanged).then(
+        subscription => (this._headingSubscription = subscription)
+      );
+    }
   }
 
   componentDidMount() {
@@ -302,6 +306,17 @@ class MapScreen extends React.Component<Props, State> {
     );
   };
 
+  _onRegionChangeComplete = region => {
+    if (this.props.store.get('playMode') === PlayMode.STATIONARY) {
+      this.setState({
+        playerPos: {
+          latitude: region.latitude,
+          longitude: region.longitude,
+        },
+      });
+    }
+  };
+
   render() {
     const { navigation, store } = this.props;
     const { isLoading } = this.state;
@@ -312,6 +327,7 @@ class MapScreen extends React.Component<Props, State> {
           ref={map => (this._map = map)}
           style={styles.map}
           initialRegion={DEFAULT_REGION}
+          onRegionChangeComplete={this._onRegionChangeComplete}
         >
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker
@@ -333,21 +349,23 @@ class MapScreen extends React.Component<Props, State> {
                 zIndex: 1,
               }}
             />
-            <Image
-              source={require('assets/images/map/bearingV2.png')}
-              resizeMode={Image.resizeMode.cover}
-              style={{
-                width: 90,
-                height: 90,
-                zIndex: 0,
-                position: 'absolute',
-                top: -24,
-                left: -21,
-                transform: [
-                  { rotate: String(this.state.playerHeading) + 'deg' },
-                ],
-              }}
-            />
+            {this.props.store.get('playMode') === PlayMode.ROAMING ? (
+              <Image
+                source={require('assets/images/map/bearingV3.png')}
+                resizeMode={Image.resizeMode.cover}
+                style={{
+                  width: 90,
+                  height: 90,
+                  zIndex: 0,
+                  position: 'absolute',
+                  top: -24,
+                  left: -21,
+                  transform: [
+                    { rotate: String(this.state.playerHeading) + 'deg' },
+                  ],
+                }}
+              />
+            ) : null}
           </MapView.Marker>
           <MapView.Circle
             // workaround to make the circle re-render when the position updates

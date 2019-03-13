@@ -8,7 +8,9 @@ import type {
   NavigationState,
 } from 'react-navigation';
 
+import type { JpDisplayStyleType } from 'src/jp/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
+import type { PlayModeType } from 'src/util/Types';
 
 import React from 'react';
 
@@ -30,6 +32,7 @@ import { StackNavigator, NavigationActions } from 'react-navigation';
 import { JpDisplayStyle } from 'src/jp/Types';
 import { logJpDisplayStyle } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
+import { PlayMode } from 'src/util/Types';
 import { generateUserID, generateTestUserID } from 'src/util/Util';
 
 type Props = {
@@ -37,7 +40,13 @@ type Props = {
   navigation: NavigationScreenProp<NavigationState>,
 };
 
-class SettingsScreen extends React.Component<Props> {
+type State = {
+  jpDisplayStyle: JpDisplayStyleType,
+  playMode: PlayModeType,
+  playerID: ?string,
+};
+
+class SettingsScreen extends React.Component<Props, State> {
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Settings',
     header: { visible: false },
@@ -46,6 +55,12 @@ class SettingsScreen extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
+    this.state = {
+      jpDisplayStyle: props.store.get('jpDisplayStyle'),
+      playMode: props.store.get('playMode'),
+      playerID: props.store.get('playerID'),
+    };
   }
 
   render() {
@@ -65,7 +80,13 @@ class SettingsScreen extends React.Component<Props> {
           <Text style={styles.description}> Set User ID </Text>
           <View style={styles.userIdFlex}>
             <TouchableOpacity
-              onPress={() => generateID(store)}
+              onPress={() =>
+                this.setState({
+                  playerID: store.get('testIDGenerationBool')
+                    ? generateUserID()
+                    : generateTestUserID(),
+                })
+              }
               style={styles.idButton}
               color="#FFFFFF"
             >
@@ -74,7 +95,7 @@ class SettingsScreen extends React.Component<Props> {
             <TextInput
               style={styles.inputBox}
               editable={false}
-              value={store.get('playerID')}
+              value={this.state.playerID}
             />
           </View>
           <View style={styles.userIdFlex}>
@@ -90,70 +111,43 @@ class SettingsScreen extends React.Component<Props> {
             />
             <Text style={styles.saveText}> On</Text>
           </View>
-          <Text style={styles.description}> Set Japanese Display Style </Text>
+          <Text style={styles.description}> Set Play Mode </Text>
           <Picker
-            selectedValue={store.get('jpDisplayStyle')}
+            selectedValue={this.state.playMode}
             style={styles.picker}
             onValueChange={(itemValue, itemIndex) => {
-              store.set('jpDisplayStyle')(itemValue);
-              logJpDisplayStyle(itemValue);
+              this.setState({
+                playMode: itemValue,
+              });
             }}
-            itemStyle={{
-              backgroundColor: '#FFA37F',
-              fontFamily: 'krungthep',
-            }}
+            itemStyle={styles.pickerItem}
           >
-            <Picker.Item
-              label="Kana"
-              value={JpDisplayStyle.KANA}
-              style={styles.item}
-            />
-            <Picker.Item
-              label="Romaji"
-              value={JpDisplayStyle.KANJI}
-              style={styles.item}
-            />
+            <Picker.Item label="Roaming" value={PlayMode.ROAMING} />
+            <Picker.Item label="Stationary" value={PlayMode.STATIONARY} />
+          </Picker>
+          <Text style={styles.description}> Set Japanese Display Style </Text>
+          <Picker
+            selectedValue={this.state.jpDisplayStyle}
+            style={styles.picker}
+            onValueChange={(itemValue, itemIndex) => {
+              this.setState({
+                jpDisplayStyle: itemValue,
+              });
+            }}
+            itemStyle={styles.pickerItem}
+          >
+            <Picker.Item label="Kana" value={JpDisplayStyle.KANA} />
+            <Picker.Item label="Romaji" value={JpDisplayStyle.ROMAJI} />
           </Picker>
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert(
-                'Your settings have been saved!',
-                'Return Home?',
-                [
-                  {
-                    text: 'Not Yet',
-                  },
-                  {
-                    text: 'Yes Please!',
-                    onPress: () =>
-                      navigation.dispatch(NavigationActions.back()),
-                  },
-                ],
-                { cancelable: false }
-              )
-            }
+            onPress={this._onSave}
             style={styles.saveButton}
             color="#FFFFFF"
           >
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert(
-                'Are you sure you want to clear your data?',
-                'This cannot be undone.',
-                [
-                  {
-                    text: 'No',
-                  },
-                  {
-                    text: 'Yes',
-                    onPress: () => clearData(store),
-                  },
-                ],
-                { cancelable: false }
-              )
-            }
+            onPress={this._onClearData}
             style={styles.clearButton}
             color="#FFFFFF"
           >
@@ -163,6 +157,45 @@ class SettingsScreen extends React.Component<Props> {
       </View>
     );
   }
+
+  _onSave = () => {
+    const { store, navigation } = this.props;
+    store.set('jpDisplayStyle')(this.state.jpDisplayStyle);
+    store.set('playMode')(this.state.playMode);
+    store.set('playerID')(this.state.playerID);
+    // TODO: log play mode
+    logJpDisplayStyle(this.state.jpDisplayStyle);
+    Alert.alert(
+      'Your settings have been saved!',
+      'Return Home?',
+      [
+        {
+          text: 'Not Yet',
+        },
+        {
+          text: 'Yes Please!',
+          onPress: () => navigation.dispatch(NavigationActions.back()),
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  _onClearData = () =>
+    Alert.alert(
+      'Are you sure you want to clear your data?',
+      'This cannot be undone.',
+      [
+        {
+          text: 'No',
+        },
+        {
+          text: 'Yes',
+          onPress: () => clearData(this.props.store),
+        },
+      ],
+      { cancelable: false }
+    );
 }
 
 function clearData(store) {
@@ -219,6 +252,13 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth: 2,
     borderRadius: 5,
+    // height = pickerItem height + borderRadius
+    height: 105,
+  },
+  pickerItem: {
+    height: 100,
+    backgroundColor: '#FFA37F',
+    fontFamily: 'krungthep',
   },
   description: {
     marginTop: 20,
