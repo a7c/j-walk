@@ -196,7 +196,7 @@ class MapScreen extends React.Component<Props, State> {
       fetchVenues(playerPos.latitude, playerPos.longitude, 250)
     );
     const venuesById = new Map(store.get('venuesById'));
-    let nearbyVenues = new Set();
+    const nearbyVenues = new Set(store.get('nearbyVenues'));
     for (const venue of venues) {
       if (!venuesById.has(venue.id)) {
         venuesById.set(venue.id, venue);
@@ -317,6 +317,51 @@ class MapScreen extends React.Component<Props, State> {
     }
   };
 
+  _renderAvatar() {
+    return (
+      <React.Fragment>
+        <MapView.Marker coordinate={this.state.playerPos} pointerEvents="none">
+          <Image
+            source={require('assets/images/map/mon.png')}
+            resizeMode={Image.resizeMode.cover}
+            style={{
+              width: 47,
+              height: 40,
+            }}
+          />
+          {this.props.store.get('playMode') === PlayMode.ROAMING ? (
+            <Image
+              source={require('assets/images/map/bearingV3.png')}
+              resizeMode={Image.resizeMode.cover}
+              style={{
+                width: 90,
+                height: 90,
+                position: 'absolute',
+                top: -24,
+                left: -21,
+                transform: [
+                  { rotate: String(this.state.playerHeading) + 'deg' },
+                ],
+              }}
+            />
+          ) : null}
+        </MapView.Marker>
+        <MapView.Circle
+          // workaround to make the circle re-render when the position updates
+          // source: https://github.com/react-community/react-native-maps/issues/283#issuecomment-227812817
+          key={(
+            this.state.playerPos.latitude + this.state.playerPos.longitude
+          ).toString()}
+          center={this.state.playerPos}
+          radius={this._getInteractRadius()}
+          strokeColor={'#00cccc80'}
+          strokeWidth={2}
+          fillColor={'#00ffff20'}
+        />
+      </React.Fragment>
+    );
+  }
+
   render() {
     const { navigation, store } = this.props;
     const { isLoading } = this.state;
@@ -329,6 +374,7 @@ class MapScreen extends React.Component<Props, State> {
           initialRegion={DEFAULT_REGION}
           onRegionChangeComplete={this._onRegionChangeComplete}
         >
+          {this._renderAvatar()}
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker
               venueId={venueId}
@@ -336,49 +382,6 @@ class MapScreen extends React.Component<Props, State> {
               inRange={this._isVenueInRange(venueId)}
             />
           ))}
-          <MapView.Marker
-            coordinate={this.state.playerPos}
-            pointerEvents="none"
-          >
-            <Image
-              source={require('assets/images/map/mon.png')}
-              resizeMode={Image.resizeMode.cover}
-              style={{
-                width: 47,
-                height: 40,
-                zIndex: 1,
-              }}
-            />
-            {this.props.store.get('playMode') === PlayMode.ROAMING ? (
-              <Image
-                source={require('assets/images/map/bearingV3.png')}
-                resizeMode={Image.resizeMode.cover}
-                style={{
-                  width: 90,
-                  height: 90,
-                  zIndex: 0,
-                  position: 'absolute',
-                  top: -24,
-                  left: -21,
-                  transform: [
-                    { rotate: String(this.state.playerHeading) + 'deg' },
-                  ],
-                }}
-              />
-            ) : null}
-          </MapView.Marker>
-          <MapView.Circle
-            // workaround to make the circle re-render when the position updates
-            // source: https://github.com/react-community/react-native-maps/issues/283#issuecomment-227812817
-            key={(
-              this.state.playerPos.latitude + this.state.playerPos.longitude
-            ).toString()}
-            center={this.state.playerPos}
-            radius={this._getInteractRadius()}
-            strokeColor={'#00cccc80'}
-            strokeWidth={2}
-            fillColor={'#00ffff20'}
-          />
         </MapView>
         <Header
           color={'black'}

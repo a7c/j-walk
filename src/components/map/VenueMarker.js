@@ -67,6 +67,7 @@ class VenueMarker extends React.Component<Props, State> {
           longitude: this._venue.lng,
         }}
         calloutOffset={{ x: -1, y: 28 }}
+        stopPropagation={true}
       >
         <Image
           source={sushiIcons[imageIndex]}
@@ -74,7 +75,6 @@ class VenueMarker extends React.Component<Props, State> {
           style={{
             width,
             height,
-            zIndex: 0,
           }}
         />
         <VenueCallout canInteract={inRange} venueId={venueId} />
