@@ -151,6 +151,8 @@ class MapScreen extends React.Component<Props, State> {
     }
   }
 
+  /** This cancellable promise infrastructure allows us to cancel pending
+   *  promises when the component unmounts. */
   _addPromise = promise => {
     this._pendingPromises = [...this._pendingPromises, promise];
   };
@@ -218,6 +220,7 @@ class MapScreen extends React.Component<Props, State> {
       for (const keyword of keywords) {
         let vocabCandidates = vocabFromKeyword.get(keyword);
         if (!vocabCandidates) {
+          // TODO: can we parallelize this better instead of awaiting in a loop?
           const vocabEntries: Array<VocabEntry> = await this._wrapPromise(
             generateVocabForKeyword(keyword)
           );
@@ -246,6 +249,15 @@ class MapScreen extends React.Component<Props, State> {
     }
     store.set('vocabById')(vocabById);
     store.set('vocabFromKeyword')(vocabFromKeyword);
+
+    const challengeVenueId = Array.from(nearbyVenues)[
+      Math.floor(Math.random() * nearbyVenues.size)
+    ];
+    const challengeVenue = venuesById.get(challengeVenueId);
+    if (challengeVenue) {
+      challengeVenue.state = VenueState.LOCKED;
+      store.set('venuesById')(venuesById);
+    }
   };
 
   _setRegion(region: Region) {

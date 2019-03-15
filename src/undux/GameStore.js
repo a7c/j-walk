@@ -75,7 +75,7 @@ const initialState: State = {
   jpDisplayStyle: JpDisplayStyle.KANA,
   playerID: null,
   playerExp: 0,
-  playMode: PlayMode.ROAMING,
+  playMode: PlayMode.STATIONARY,
   testIDGenerationBool: false,
 };
 

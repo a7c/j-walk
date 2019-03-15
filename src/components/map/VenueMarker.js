@@ -21,6 +21,8 @@ const sushiIcons = [
   require('assets/images/icons/sushi5.png'),
 ];
 
+const HOUSE_LOCKED_ICON = require('assets/images/icons/house_locked.png');
+
 type Props = {|
   ...GameStoreProps,
   /** Whether the venue is in range for the player to interact with */
@@ -50,11 +52,18 @@ class VenueMarker extends React.Component<Props, State> {
   render() {
     const { inRange, venueId } = this.props;
 
-    if (this._venue.state === VenueState.HIDDEN) {
-      return null;
+    let src = null;
+    switch (this._venue.state) {
+      case VenueState.HIDDEN:
+        return null;
+      case VenueState.LEARN:
+        const imageIndex = parseInt(venueId, 16) % sushiIcons.length;
+        src = sushiIcons[imageIndex];
+        break;
+      case VenueState.LOCKED:
+        src = HOUSE_LOCKED_ICON;
+        break;
     }
-
-    const imageIndex = parseInt(venueId, 16) % sushiIcons.length;
 
     // make marker larger as an indication that it's in range
     const width = inRange ? 96 : 64;
@@ -70,7 +79,7 @@ class VenueMarker extends React.Component<Props, State> {
         stopPropagation={true}
       >
         <Image
-          source={sushiIcons[imageIndex]}
+          source={src}
           resizeMode={Image.resizeMode.cover}
           style={{
             width,

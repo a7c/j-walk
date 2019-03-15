@@ -41,7 +41,6 @@ export const fetchVenues = async (
       `${apiUrl}intent=browse&radius=${radius}&ll=${lat},${lng}&limit=8&client_id=${clientId}&client_secret=${clientSecret}&v=${version}`
     );
     const responseJson: FoursquareResponse = await response.json();
-    // console.log(responseJson);
     const venues: Array<Venue> = responseJson.response.venues.reduce(
       (acc, venueData) => {
         const venue = _processVenue(venueData);
@@ -52,7 +51,6 @@ export const fetchVenues = async (
       },
       []
     );
-    // console.log(venues);
     return venues;
   } catch (error) {
     console.error(error);

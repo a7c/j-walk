@@ -24,6 +24,7 @@ import {
   View,
 } from 'react-native';
 
+import SentenceDatabase from 'src/async/SentenceDatabase';
 import getLogging from 'src/logging/Logging';
 import { withStore } from 'src/undux/GameStore';
 // TODO: switch this to non-test version during user study?
@@ -64,6 +65,8 @@ class HomeScreen extends React.Component<Props> {
     if (!this._hasLoggedSession) {
       this._initLogging(playerID);
     }
+
+    SentenceDatabase.db.load();
   }
 
   async _initLogging(playerID) {
