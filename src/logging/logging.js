@@ -25,7 +25,7 @@ export default function getLogging() {
       STATUS_LEVEL_IN_PROGRESS: 2,
     };
 
-    var _gameId = 1817055;
+    var _gameId = 777;
     var _abValueSet = false;
     var _abStoredValue = null;
     /* NOTE: important to update version when re-running the study! */
@@ -54,11 +54,10 @@ export default function getLogging() {
       if (_debugMode) {
         return;
       }
-      // _userId = await AsyncStorage.getItem('user_id');
-      // if (!_userId) {
-      //   _userId = generateRandomString(40);
-      // }
-      _userId = '11111111';
+      _userId = await AsyncStorage.getItem('user_id');
+      if (!_userId) {
+        _userId = generateRandomString(40);
+      }
       trace(`Initialized logger with userId: ${_userId}`);
       _sessionId = generateRandomString(36);
       _currentStatus = StatusEnum.STATUS_LEVEL_NOT_STARTED;
