@@ -78,10 +78,7 @@ class HomeScreen extends React.Component<Props> {
     );
     // treat entire game as one page + one level
     logger.recordPageLoad();
-    logger.recordLevelStart(
-      'game start',
-      this.props.store.get('jpDisplayStyle')
-    );
+    logger.recordLevelStart(0, this.props.store.get('jpDisplayStyle'));
   }
 
   render() {

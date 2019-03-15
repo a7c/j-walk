@@ -11,7 +11,8 @@ export default function getLogging() {
   return arguments.callee._singleton;
 
   function Logger() {
-    var BASE_URL = 'https://gdiac.cis.cornell.edu/research_games/';
+    var BASE_URL =
+      'https://gdiac.cis.cornell.edu/research_games/php/lostintranslation/';
     var PAGE_LOAD = 'page_load.php';
     var PLAYER_ACTION = 'player_action.php';
     var PLAYER_QUEST = 'player_quest.php';
@@ -24,7 +25,7 @@ export default function getLogging() {
       STATUS_LEVEL_IN_PROGRESS: 2,
     };
 
-    var _gameId = 777;
+    var _gameId = 1817055;
     var _abValueSet = false;
     var _abStoredValue = null;
     /* NOTE: important to update version when re-running the study! */
@@ -53,11 +54,11 @@ export default function getLogging() {
       if (_debugMode) {
         return;
       }
-      _userId = await AsyncStorage.getItem('user_id');
-      trace(_userId);
-      if (!_userId) {
-        _userId = generateRandomString(40);
-      }
+      // _userId = await AsyncStorage.getItem('user_id');
+      // if (!_userId) {
+      //   _userId = generateRandomString(40);
+      // }
+      _userId = '11111111';
       trace(`Initialized logger with userId: ${_userId}`);
       _sessionId = generateRandomString(36);
       _currentStatus = StatusEnum.STATUS_LEVEL_NOT_STARTED;
@@ -198,6 +199,7 @@ export default function getLogging() {
         _userId +
         '&session_id=' +
         _sessionId;
+      trace('recordPageLoad: ' + serverURL);
       sendRequest('recordPageLoad', serverURL);
       //stores user info
       await AsyncStorage.setItem('user_id', _userId);
@@ -247,6 +249,7 @@ export default function getLogging() {
         questDetail +
         '&dynamic_quest_id=' +
         _dynamicQuestId;
+      trace('recordLevelStart: ' + serverURL);
       sendRequest('recordLevelStart', serverURL);
       trace('record level start');
       _sessionSeqId++;
