@@ -2,6 +2,11 @@
  * @flow
  */
 
+import type {
+  NavigationScreenConfig,
+  NavigationScreenProp,
+  NavigationStateRoute,
+} from 'react-navigation';
 import type { Venue } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 
@@ -25,6 +30,7 @@ const HOUSE_LOCKED_ICON = require('assets/images/icons/house_locked.png');
 
 type Props = {|
   ...GameStoreProps,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
   /** Whether the venue is in range for the player to interact with */
   inRange: boolean,
   venueId: string,
@@ -33,6 +39,7 @@ type Props = {|
 type State = {||};
 
 class VenueMarker extends React.Component<Props, State> {
+  _marker: ?MapView.Marker = null;
   _venue: Venue;
 
   constructor(props: Props) {
@@ -48,6 +55,12 @@ class VenueMarker extends React.Component<Props, State> {
       );
     }
   }
+
+  _hideCallout = () => {
+    if (this._marker) {
+      this._marker.hideCallout();
+    }
+  };
 
   render() {
     const { inRange, venueId } = this.props;
@@ -77,6 +90,7 @@ class VenueMarker extends React.Component<Props, State> {
         }}
         calloutOffset={{ x: -1, y: 28 }}
         stopPropagation={true}
+        ref={marker => (this._marker = marker)}
       >
         <Image
           source={src}
@@ -86,7 +100,12 @@ class VenueMarker extends React.Component<Props, State> {
             height,
           }}
         />
-        <VenueCallout canInteract={inRange} venueId={venueId} />
+        <VenueCallout
+          navigation={this.props.navigation}
+          canInteract={inRange}
+          hideCallout={this._hideCallout}
+          venueId={venueId}
+        />
       </MapView.Marker>
     );
   }

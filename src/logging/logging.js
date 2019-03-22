@@ -204,7 +204,7 @@ export default function getLogging() {
       await AsyncStorage.setItem('session_id', _sessionId);
     };
 
-    this.recordLevelStart = function(questId: string, questDetail?: string) {
+    this.recordLevelStart = function(questId: number, questDetail?: string) {
       if (_currentStatus != StatusEnum.STATUS_LEVEL_NOT_STARTED) {
         if (!_debugMode) {
           if (_currentStatus == StatusEnum.STATUS_UNINITIALIZED) {

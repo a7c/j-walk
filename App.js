@@ -12,6 +12,7 @@ import MapScreen from 'src/screens/MapScreen';
 import VocabScreen from 'src/screens/VocabScreen';
 import ReviewScreen from 'src/screens/ReviewScreen';
 import SettingsScreen from 'src/screens/SettingsScreen';
+import ChallengeClozeScreen from 'src/screens/ChallengeClozeScreen';
 import { Container } from 'src/undux/GameStore';
 
 type Props = {};
@@ -43,6 +44,7 @@ const AppNavigator = createStackNavigator(
     Vocab: { screen: VocabScreen },
     Review: { screen: ReviewScreen },
     Settings: { screen: SettingsScreen },
+    ChallengeCloze: { screen: ChallengeClozeScreen },
   },
   {
     cardStyle: { backgroundColor: '#ff8859' },

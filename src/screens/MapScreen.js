@@ -5,9 +5,9 @@
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
-  NavigationState,
+  NavigationStateRoute,
 } from 'react-navigation';
-import type { VocabEntry } from 'src/entities/Types';
+import type { Venue, VocabEntry } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 import type { CancellablePromise } from 'src/util/Util';
 
@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
+import SentenceDatabase from 'src/async/SentenceDatabase';
 import { fetchVenues } from 'src/async/VenueFetcher';
 import { VenueState } from 'src/entities/Types';
 import {
@@ -85,7 +86,7 @@ const INTERACT_RADIUS_BUFFER = 10;
 
 type Props = {
   ...GameStoreProps,
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
 };
 
 type State = {
@@ -255,8 +256,78 @@ class MapScreen extends React.Component<Props, State> {
     ];
     const challengeVenue = venuesById.get(challengeVenueId);
     if (challengeVenue) {
-      challengeVenue.state = VenueState.LOCKED;
-      store.set('venuesById')(venuesById);
+      this._createChallengeVenue(
+        challengeVenue,
+        nearbyVenues,
+        venuesById,
+        vocabById
+      );
+    }
+  };
+
+  _createChallengeVenue = async (
+    challengeVenue: Venue,
+    nearbyVenues: Set<string>,
+    venuesById: Map<string, Venue>,
+    vocabById: Map<string, VocabEntry>
+  ) => {
+    const { store } = this.props;
+    let found = false;
+    for (const nearbyVenueId of nearbyVenues) {
+      if (found) {
+        break;
+      }
+      const nearbyVenue = venuesById.get(nearbyVenueId);
+      if (!nearbyVenue) {
+        continue;
+      }
+      const vocabId1 = nearbyVenue.vocab;
+      if (!vocabId1 || vocabId1 === challengeVenue.vocab) {
+        continue;
+      }
+      const vocab1 = vocabById.get(vocabId1);
+      if (!vocab1) {
+        continue;
+      }
+
+      for (const vocabId2 of store.get('learnedVocab')) {
+        if (found) {
+          break;
+        }
+        if (!vocabId2) {
+          continue;
+        }
+        const vocab2 = vocabById.get(vocabId2);
+        if (!vocab2) {
+          continue;
+        }
+        if (vocab1.word === vocab2.word) {
+          continue;
+        }
+
+        const results = SentenceDatabase.db.queryJapaneseKeywords(
+          vocab1.word,
+          vocab2.word
+        );
+        if (results) {
+          results.each((entry, _number) => {
+            if (found) {
+              return;
+            }
+            // TODO: store and check past sentences?
+            console.log('found sentence:', entry);
+            found = true;
+            challengeVenue.state = VenueState.LOCKED;
+            challengeVenue.sentence = {
+              english: entry.english,
+              japanese: entry.japanese,
+            };
+            challengeVenue.anchorWord = vocab2.word;
+            challengeVenue.testWordId = vocabId1;
+            store.set('venuesById')(venuesById);
+          });
+        }
+      }
     }
   };
 
@@ -391,6 +462,7 @@ class MapScreen extends React.Component<Props, State> {
             <VenueMarker
               venueId={venueId}
               key={venueId}
+              navigation={this.props.navigation}
               inRange={this._isVenueInRange(venueId)}
             />
           ))}

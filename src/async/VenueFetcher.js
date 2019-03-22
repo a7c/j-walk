@@ -70,6 +70,9 @@ const _processVenue = (venueData: FoursquareVenue): ?Venue => {
     category: venueData.categories[0].shortName.toLowerCase(),
     state: VenueState.HIDDEN,
     vocab: null,
+    sentence: null,
+    anchorWord: null,
+    testWordId: null,
   };
   return venue;
 };

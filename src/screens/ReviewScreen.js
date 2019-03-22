@@ -4,7 +4,7 @@
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
-  NavigationState,
+  NavigationStateRoute,
 } from 'react-navigation';
 
 import type { GameStoreProps } from 'src/undux/GameStore';
@@ -40,7 +40,7 @@ const logger = getLogging();
 
 type Props = {|
   ...GameStoreProps,
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
 |};
 
 type State = {|

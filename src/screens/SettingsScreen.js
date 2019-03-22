@@ -5,7 +5,7 @@
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
-  NavigationState,
+  NavigationStateRoute,
 } from 'react-navigation';
 
 import type { JpDisplayStyleType } from 'src/jp/Types';
@@ -37,7 +37,7 @@ import { generateUserID, generateTestUserID } from 'src/util/Util';
 
 type Props = {
   ...GameStoreProps,
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
 };
 
 type State = {

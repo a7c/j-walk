@@ -6,7 +6,7 @@ import type { RelativeImageStub } from 'react-native';
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
-  NavigationState,
+  NavigationStateRoute,
 } from 'react-navigation';
 
 import type { GameStoreProps } from 'src/undux/GameStore';
@@ -44,7 +44,7 @@ const createButton = (img: RelativeImageStub, onPress: () => void) => {
 
 type Props = {
   ...GameStoreProps,
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
 };
 
 class HomeScreen extends React.Component<Props> {

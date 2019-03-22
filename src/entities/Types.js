@@ -17,6 +17,16 @@ export type Venue = {|
   category: string,
   state: VenueStateType,
   vocab: ?string, // vocab id
+
+  // for challenges
+  sentence: ?{
+    english: string,
+    japanese: string,
+  },
+  // A word in the sentence that the player has already learned
+  anchorWord: ?string,
+  // The ID of a word in the sentence that is located at a nearby venue
+  testWordId: ?string,
 |};
 
 export type VocabEntry = {|

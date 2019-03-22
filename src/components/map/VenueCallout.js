@@ -2,6 +2,12 @@
  *  @flow
  */
 
+import type {
+  NavigationScreenConfig,
+  NavigationScreenProp,
+  NavigationStateRoute,
+} from 'react-navigation';
+
 import type { Venue } from 'src/entities/Types';
 import type { GameStoreProps } from 'src/undux/GameStore';
 
@@ -16,7 +22,9 @@ import { withStore } from 'src/undux/GameStore';
 
 type Props = {|
   ...GameStoreProps,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
   canInteract: boolean,
+  hideCallout: void => void,
   venueId: string,
 |};
 
@@ -67,6 +75,13 @@ class VenueCallout extends React.Component<Props, State> {
     Alert.alert(`Learned a new word!`, `${vocabText}`);
   };
 
+  _onUnlockPressed = () => {
+    this.props.navigation.navigate('ChallengeCloze', {
+      venueId: this.props.venueId,
+    });
+    this.props.hideCallout();
+  };
+
   render() {
     const { canInteract, store } = this.props;
     const vocabById = store.get('vocabById');
@@ -77,7 +92,7 @@ class VenueCallout extends React.Component<Props, State> {
     );
 
     let vocabReading = null;
-    if (this._venue.vocab) {
+    if (this._venue.state === VenueState.LEARN && this._venue.vocab) {
       const vocab = vocabById.get(this._venue.vocab);
       if (vocab) {
         vocabReading = this._formatJp(vocab.reading);
@@ -85,7 +100,11 @@ class VenueCallout extends React.Component<Props, State> {
     }
 
     const button = canInteract ? (
-      <Button onPress={this._onLearnPressed} title={'Learn'} />
+      this._venue.state === VenueState.LEARN ? (
+        <Button onPress={this._onLearnPressed} title={'Learn'} />
+      ) : (
+        <Button onPress={this._onUnlockPressed} title={'Unlock'} />
+      )
     ) : (
       <Button disabled={true} onPress={() => {}} title={'Too far!'} />
     );

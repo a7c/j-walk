@@ -5,7 +5,7 @@
 import type {
   NavigationScreenConfig,
   NavigationScreenProp,
-  NavigationState,
+  NavigationStateRoute,
 } from 'react-navigation';
 
 import type { VocabEntry } from 'src/entities/Types';
@@ -29,7 +29,7 @@ import { withStore } from 'src/undux/GameStore';
 
 type Props = {
   ...GameStoreProps,
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: NavigationScreenProp<NavigationStateRoute>,
 };
 
 type State = {
