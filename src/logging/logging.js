@@ -11,8 +11,7 @@ export default function getLogging() {
   return arguments.callee._singleton;
 
   function Logger() {
-    var BASE_URL =
-      'https://gdiac.cis.cornell.edu/research_games/php/lostintranslation/';
+    var BASE_URL = 'https://gdiac.cs.cornell.edu/research_games/php/jwalk/';
     var PAGE_LOAD = 'page_load.php';
     var PLAYER_ACTION = 'player_action.php';
     var PLAYER_QUEST = 'player_quest.php';
