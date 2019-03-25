@@ -134,17 +134,17 @@ const _generateUserID = (isTest: boolean) => {
   const min = 100;
   const max = 999;
 
-  // if (isTest) {
-  const num = String(Math.round(min + Math.random() * (max - min)));
-  const test = 'TEST';
-  return test + num;
-  // } else {
-  //   const num = String(Math.round(min + Math.random() * (max - min)));
-  //   const letter1 = alphabet[Math.floor(Math.random() * alphabet.length)];
-  //   const letter2 = alphabet[Math.floor(Math.random() * alphabet.length)];
-  //   const letter3 = alphabet[Math.floor(Math.random() * alphabet.length)];
-  //   return letter1 + letter2 + letter3 + num;
-  // }
+  if (isTest) {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const test = 'TEST';
+    return test + num;
+  } else {
+    const num = String(Math.round(min + Math.random() * (max - min)));
+    const letter1 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    const letter2 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    const letter3 = alphabet[Math.floor(Math.random() * alphabet.length)];
+    return letter1 + letter2 + letter3 + num;
+  }
 };
 
 /**

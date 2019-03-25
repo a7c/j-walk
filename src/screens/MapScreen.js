@@ -140,8 +140,7 @@ class MapScreen extends React.Component<Props, State> {
 
   componentDidMount() {
     try {
-      // TODO: uncomment this
-      // this._getLocationAsync(this._populateMap);
+      this._getLocationAsync(this._populateMap);
     } catch (error) {
       console.error(error);
     }
