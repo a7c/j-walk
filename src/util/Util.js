@@ -19,6 +19,24 @@ export function shuffleArray<T>(array: Array<T>): Array<T> {
 }
 
 /**
+ * Returns a copy of obj that has the keys in all lowercase.
+ */
+export const objectKeysToLowercase =
+  // TODO: improve type signature
+  (obj: Object) => {
+    var key;
+
+    var keys = Object.keys(obj);
+    var n = keys.length;
+    var newobj = {};
+    while (n--) {
+      key = keys[n];
+      newobj[key.toLowerCase()] = obj[key];
+    }
+    return newobj;
+  };
+
+/**
  * Returns a random integer between min and max (inclusive).
  */
 export const getRandomInt = (min: number, max: number) => {
@@ -116,17 +134,17 @@ const _generateUserID = (isTest: boolean) => {
   const min = 100;
   const max = 999;
 
-  if (isTest) {
-    const num = String(Math.round(min + Math.random() * (max - min)));
-    const test = 'TEST';
-    return test + num;
-  } else {
-    const num = String(Math.round(min + Math.random() * (max - min)));
-    const letter1 = alphabet[Math.floor(Math.random() * alphabet.length)];
-    const letter2 = alphabet[Math.floor(Math.random() * alphabet.length)];
-    const letter3 = alphabet[Math.floor(Math.random() * alphabet.length)];
-    return letter1 + letter2 + letter3 + num;
-  }
+  // if (isTest) {
+  const num = String(Math.round(min + Math.random() * (max - min)));
+  const test = 'TEST';
+  return test + num;
+  // } else {
+  //   const num = String(Math.round(min + Math.random() * (max - min)));
+  //   const letter1 = alphabet[Math.floor(Math.random() * alphabet.length)];
+  //   const letter2 = alphabet[Math.floor(Math.random() * alphabet.length)];
+  //   const letter3 = alphabet[Math.floor(Math.random() * alphabet.length)];
+  //   return letter1 + letter2 + letter3 + num;
+  // }
 };
 
 /**

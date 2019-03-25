@@ -111,10 +111,7 @@ export default function getLogging() {
       r.onreadystatechange = function() {
         //   4: completed HTTP request  200: successful
         if (r.readyState != 4 || r.status != 200) {
-          trace('ABCD ' + JSON.stringify(r.readyState));
-          trace('ABCD ' + JSON.stringify(r.status));
-          trace('ABCD ' + JSON.stringify(r.response));
-          trace('ABCD ' + JSON.stringify(r.responseText));
+          // trace(`logging response: ${JSON.stringify(r)}`);
           return;
         } else {
           var response = this.responseText;

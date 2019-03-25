@@ -30,10 +30,12 @@ import {
   generateKeywordsForVenueCategory,
   generateVocabForKeyword,
 } from 'src/entities/VocabEngine';
+import AvatarMarker from 'src/components/map/AvatarMarker';
 import VenueMarker from 'src/components/map/VenueMarker';
 import Header from 'src/components/shared/Header';
 import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
+import { CHALLENGE_VENUE_RATIO } from 'src/util/Constants';
 import { cancellablePromise, getLevel } from 'src/util/Util';
 import { PlayMode } from 'src/util/Types';
 
@@ -71,8 +73,8 @@ type Region = {|
 |};
 
 const DEFAULT_REGION = {
-  latitude: 42.444782,
-  longitude: -76.484187,
+  latitude: 42.445025,
+  longitude: -76.481233,
   latitudeDelta: 0.00287,
   longitudeDelta: 0.00131,
 };
@@ -97,6 +99,7 @@ type State = {
     longitude: number,
   },
   playerHeading: number,
+  region: Region,
 };
 
 class MapScreen extends React.Component<Props, State> {
@@ -121,6 +124,7 @@ class MapScreen extends React.Component<Props, State> {
         longitude: 0,
       },
       playerHeading: 0,
+      region: DEFAULT_REGION,
     };
 
     if (this.props.store.get('playMode') === PlayMode.ROAMING) {
@@ -136,7 +140,8 @@ class MapScreen extends React.Component<Props, State> {
 
   componentDidMount() {
     try {
-      this._getLocationAsync(this._populateMap);
+      // TODO: uncomment this
+      // this._getLocationAsync(this._populateMap);
     } catch (error) {
       console.error(error);
     }
@@ -214,55 +219,71 @@ class MapScreen extends React.Component<Props, State> {
 
     const vocabById = new Map(store.get('vocabById'));
     const vocabFromKeyword = new Map(store.get('vocabFromKeyword'));
-    for (const venue of venues) {
-      const keywords = await this._wrapPromise(
-        generateKeywordsForVenueCategory(venuesById, venue.id)
-      );
-      for (const keyword of keywords) {
-        let vocabCandidates = vocabFromKeyword.get(keyword);
-        if (!vocabCandidates) {
-          // TODO: can we parallelize this better instead of awaiting in a loop?
-          const vocabEntries: Array<VocabEntry> = await this._wrapPromise(
-            generateVocabForKeyword(keyword)
-          );
-          for (const vocabEntry of vocabEntries) {
-            if (!vocabById.has(vocabEntry.id)) {
-              vocabById.set(vocabEntry.id, vocabEntry);
+    Promise.all(
+      venues.map(async venue => {
+        const keywords = await this._wrapPromise(
+          generateKeywordsForVenueCategory(venuesById, venue.id)
+        );
+        for (const keyword of keywords) {
+          let vocabCandidates = vocabFromKeyword.get(keyword);
+          if (!vocabCandidates) {
+            // TODO: can we parallelize this better instead of awaiting in a loop?
+            const vocabEntries: Array<VocabEntry> = await this._wrapPromise(
+              generateVocabForKeyword(keyword)
+            );
+            for (const vocabEntry of vocabEntries) {
+              if (!vocabById.has(vocabEntry.id)) {
+                vocabById.set(vocabEntry.id, vocabEntry);
+              }
+            }
+            vocabCandidates = vocabEntries.map(entry => entry.id);
+
+            vocabFromKeyword.set(keyword, vocabCandidates);
+          }
+
+          const vocabForVenue = vocabCandidates.pop();
+          if (!vocabForVenue) {
+            continue;
+          }
+          venue.vocab = vocabForVenue;
+          venue.state = VenueState.LEARN;
+          // Set the venues again here to make sure map gets re-rendered
+          // after each venue is ready
+          store.set('venuesById')(new Map(venuesById));
+          logAttachVocabToVenue(vocabForVenue, venue.id);
+          break;
+        }
+      })
+    ).then(() => {
+      store.set('vocabById')(vocabById);
+      store.set('vocabFromKeyword')(vocabFromKeyword);
+
+      const nearbyVenuesArray = Array.from(nearbyVenues);
+      const numChallenges =
+        nearbyVenuesArray.reduce((acc, venueId) => {
+          const venue = venuesById.get(venueId);
+          if (venue) {
+            if (venue.state === VenueState.LOCKED) {
+              return acc + 1;
+            } else {
+              return acc;
             }
           }
-          vocabCandidates = vocabEntries.map(entry => entry.id);
-
-          vocabFromKeyword.set(keyword, vocabCandidates);
+        }, 0) || 0;
+      if (numChallenges < CHALLENGE_VENUE_RATIO * nearbyVenues.size) {
+        const challengeVenueId =
+          nearbyVenuesArray[Math.floor(Math.random() * nearbyVenues.size)];
+        const challengeVenue = venuesById.get(challengeVenueId);
+        if (challengeVenue) {
+          this._createChallengeVenue(
+            challengeVenue,
+            nearbyVenues,
+            venuesById,
+            vocabById
+          );
         }
-
-        const vocabForVenue = vocabCandidates.pop();
-        if (!vocabForVenue) {
-          continue;
-        }
-        venue.vocab = vocabForVenue;
-        venue.state = VenueState.LEARN;
-        // Set the venues again here to make sure map gets re-rendered
-        // after each venue is ready
-        store.set('venuesById')(new Map(venuesById));
-        logAttachVocabToVenue(vocabForVenue, venue.id);
-        break;
       }
-    }
-    store.set('vocabById')(vocabById);
-    store.set('vocabFromKeyword')(vocabFromKeyword);
-
-    const challengeVenueId = Array.from(nearbyVenues)[
-      Math.floor(Math.random() * nearbyVenues.size)
-    ];
-    const challengeVenue = venuesById.get(challengeVenueId);
-    if (challengeVenue) {
-      this._createChallengeVenue(
-        challengeVenue,
-        nearbyVenues,
-        venuesById,
-        vocabById
-      );
-    }
+    });
   };
 
   _createChallengeVenue = async (
@@ -310,21 +331,25 @@ class MapScreen extends React.Component<Props, State> {
           vocab2.word
         );
         if (results) {
+          const pastSentences = store.get('pastSentences');
           results.each((entry, _number) => {
-            if (found) {
+            if (found || pastSentences.has(entry.japanese)) {
               return;
             }
             // TODO: store and check past sentences?
             console.log('found sentence:', entry);
             found = true;
-            challengeVenue.state = VenueState.LOCKED;
-            challengeVenue.sentence = {
+            const sentence = {
               english: entry.english,
               japanese: entry.japanese,
             };
+            challengeVenue.state = VenueState.LOCKED;
+            challengeVenue.sentence = sentence;
             challengeVenue.anchorWord = vocab2.word;
             challengeVenue.testWordId = vocabId1;
             store.set('venuesById')(venuesById);
+            pastSentences.add(sentence.japanese);
+            store.set('pastSentences')(pastSentences);
           });
         }
       }
@@ -336,6 +361,9 @@ class MapScreen extends React.Component<Props, State> {
     if (map) {
       setTimeout(() => map.animateToRegion(region), 10);
     }
+    this.setState({
+      region: region,
+    });
   }
 
   _getLocationAsync = async callback => {
@@ -390,6 +418,9 @@ class MapScreen extends React.Component<Props, State> {
   };
 
   _onRegionChangeComplete = region => {
+    this.setState({
+      region: region,
+    });
     if (this.props.store.get('playMode') === PlayMode.STATIONARY) {
       this.setState({
         playerPos: {
@@ -399,51 +430,6 @@ class MapScreen extends React.Component<Props, State> {
       });
     }
   };
-
-  _renderAvatar() {
-    return (
-      <React.Fragment>
-        <MapView.Marker coordinate={this.state.playerPos} pointerEvents="none">
-          <Image
-            source={require('assets/images/map/mon.png')}
-            resizeMode={Image.resizeMode.cover}
-            style={{
-              width: 47,
-              height: 40,
-            }}
-          />
-          {this.props.store.get('playMode') === PlayMode.ROAMING ? (
-            <Image
-              source={require('assets/images/map/bearingV3.png')}
-              resizeMode={Image.resizeMode.cover}
-              style={{
-                width: 90,
-                height: 90,
-                position: 'absolute',
-                top: -24,
-                left: -21,
-                transform: [
-                  { rotate: String(this.state.playerHeading) + 'deg' },
-                ],
-              }}
-            />
-          ) : null}
-        </MapView.Marker>
-        <MapView.Circle
-          // workaround to make the circle re-render when the position updates
-          // source: https://github.com/react-community/react-native-maps/issues/283#issuecomment-227812817
-          key={(
-            this.state.playerPos.latitude + this.state.playerPos.longitude
-          ).toString()}
-          center={this.state.playerPos}
-          radius={this._getInteractRadius()}
-          strokeColor={'#00cccc80'}
-          strokeWidth={2}
-          fillColor={'#00ffff20'}
-        />
-      </React.Fragment>
-    );
-  }
 
   render() {
     const { navigation, store } = this.props;
@@ -456,8 +442,16 @@ class MapScreen extends React.Component<Props, State> {
           style={styles.map}
           initialRegion={DEFAULT_REGION}
           onRegionChangeComplete={this._onRegionChangeComplete}
+          pitchEnabled={false}
+          rotateEnabled={false}
         >
-          {this._renderAvatar()}
+          <AvatarMarker
+            playerExp={store.get('playerExp')}
+            playMode={store.get('playMode')}
+            position={this.state.playerPos}
+            heading={this.state.playerHeading}
+            region={this.state.region}
+          />
           {Array.from(store.get('nearbyVenues')).map(venueId => (
             <VenueMarker
               venueId={venueId}

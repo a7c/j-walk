@@ -79,7 +79,7 @@ class VenueCallout extends React.Component<Props, State> {
     this.props.navigation.navigate('ChallengeCloze', {
       venueId: this.props.venueId,
     });
-    this.props.hideCallout();
+    // this.props.hideCallout();
   };
 
   render() {

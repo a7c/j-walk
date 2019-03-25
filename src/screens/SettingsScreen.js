@@ -15,6 +15,7 @@ import type { PlayModeType } from 'src/util/Types';
 import React from 'react';
 
 import {
+  AsyncStorage,
   Image,
   StyleSheet,
   Text,
@@ -31,9 +32,12 @@ import { StackNavigator, NavigationActions } from 'react-navigation';
 
 import { JpDisplayStyle } from 'src/jp/Types';
 import { logJpDisplayStyle } from 'src/logging/LogAction';
+import getLogging from 'src/logging/Logging';
 import { withStore } from 'src/undux/GameStore';
 import { PlayMode } from 'src/util/Types';
 import { generateUserID, generateTestUserID } from 'src/util/Util';
+
+const logger = getLogging();
 
 type Props = {
   ...GameStoreProps,
@@ -41,6 +45,7 @@ type Props = {
 };
 
 type State = {
+  isTest: boolean,
   jpDisplayStyle: JpDisplayStyleType,
   playMode: PlayModeType,
   playerID: ?string,
@@ -57,6 +62,7 @@ class SettingsScreen extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      isTest: props.store.get('testIDGenerationBool'),
       jpDisplayStyle: props.store.get('jpDisplayStyle'),
       playMode: props.store.get('playMode'),
       playerID: props.store.get('playerID'),
@@ -71,61 +77,80 @@ class SettingsScreen extends React.Component<Props, State> {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.dispatch(NavigationActions.back())}
+            onPress={() => navigation.navigate('Home')}
           >
             <Image source={require('assets/images/text/home.png')} />
           </TouchableOpacity>
         </View>
         <View style={styles.body}>
-          <Text style={styles.description}> Set User ID </Text>
+          <Text style={styles.description}> User ID </Text>
           <View style={styles.userIdFlex}>
-            <TouchableOpacity
-              onPress={() =>
+            <Text style={styles.saveText}>Play </Text>
+            <Slider
+              disabled={!store.get('testIDGenerationBool')}
+              style={{ width: 100, marginTop: 10 }}
+              step={1}
+              value={this.state.isTest ? 1 : 0}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#FFFFFF"
+              onValueChange={val =>
                 this.setState({
-                  playerID: store.get('testIDGenerationBool')
-                    ? generateUserID()
-                    : generateTestUserID(),
+                  isTest: val !== 0,
                 })
               }
-              style={styles.idButton}
-              color="#FFFFFF"
-            >
-              <Text style={styles.saveText}>Generate ID</Text>
-            </TouchableOpacity>
+            />
+            <Text style={styles.saveText}> Test</Text>
+          </View>
+          <View style={styles.userIdFlex}>
+            {store.get('testIDGenerationBool') ? (
+              <TouchableOpacity
+                onPress={() =>
+                  this.setState({
+                    playerID: this.state.isTest
+                      ? generateUserID()
+                      : generateTestUserID(),
+                  })
+                }
+                style={styles.idButton}
+                color="#FFFFFF"
+              >
+                <Text style={styles.saveText}>Create</Text>
+              </TouchableOpacity>
+            ) : null}
+
             <TextInput
               style={styles.inputBox}
               editable={false}
               value={this.state.playerID}
             />
           </View>
-          <View style={styles.userIdFlex}>
-            <Text style={styles.saveText}>Off </Text>
-            <Slider
-              style={{ width: 100, marginTop: 10 }}
-              step={1}
-              value={getTestBool(store)}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor="#FFFFFF"
-              onValueChange={val => setTestBool(store, val)}
-            />
-            <Text style={styles.saveText}> On</Text>
-          </View>
-          <Text style={styles.description}> Set Play Mode </Text>
-          <Picker
-            selectedValue={this.state.playMode}
-            style={styles.picker}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState({
-                playMode: itemValue,
-              });
-            }}
-            itemStyle={styles.pickerItem}
-          >
-            <Picker.Item label="Roaming" value={PlayMode.ROAMING} />
-            <Picker.Item label="Stationary" value={PlayMode.STATIONARY} />
-          </Picker>
-          <Text style={styles.description}> Set Japanese Display Style </Text>
+          <Text style={styles.description}> Play Mode </Text>
+          {store.get('testIDGenerationBool') ? (
+            <Picker
+              disabled={true}
+              selectedValue={this.state.playMode}
+              style={styles.picker}
+              onValueChange={(itemValue, itemIndex) => {
+                this.setState({
+                  playMode: itemValue,
+                });
+              }}
+              itemStyle={styles.pickerItem}
+            >
+              <Picker.Item label="Roaming" value={PlayMode.ROAMING} />
+              <Picker.Item label="Stationary" value={PlayMode.STATIONARY} />
+            </Picker>
+          ) : (
+            <View style={styles.userIdFlex}>
+              <TextInput
+                style={styles.inputBox}
+                editable={false}
+                value={store.get('playMode')}
+              />
+            </View>
+          )}
+          {/*<Text style={styles.description}> Japanese Display Style </Text>
           <Picker
             selectedValue={this.state.jpDisplayStyle}
             style={styles.picker}
@@ -138,93 +163,89 @@ class SettingsScreen extends React.Component<Props, State> {
           >
             <Picker.Item label="Kana" value={JpDisplayStyle.KANA} />
             <Picker.Item label="Romaji" value={JpDisplayStyle.ROMAJI} />
-          </Picker>
-          <TouchableOpacity
-            onPress={this._onSave}
-            style={styles.saveButton}
-            color="#FFFFFF"
-          >
-            <Text style={styles.saveText}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Picker>*/}
+          {store.get('testIDGenerationBool') ? (
+            <TouchableOpacity
+              onPress={this._onSave}
+              style={styles.saveButton}
+              color="#FFFFFF"
+            >
+              <Text style={styles.saveText}>Save</Text>
+            </TouchableOpacity>
+          ) : null}
+          {/*<TouchableOpacity
             onPress={this._onClearData}
             style={styles.clearButton}
             color="#FFFFFF"
           >
             <Text style={styles.saveText}>Clear Data</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
         </View>
       </View>
     );
   }
 
   _onSave = () => {
+    const playerID = this.state.playerID;
+    if (!playerID) {
+      Alert.alert(
+        'Error!',
+        'You must generate a player ID before starting the game.'
+      );
+      return;
+    }
     const { store, navigation } = this.props;
-    store.set('jpDisplayStyle')(this.state.jpDisplayStyle);
-    store.set('playMode')(this.state.playMode);
-    store.set('playerID')(this.state.playerID);
-    // TODO: log play mode
-    logJpDisplayStyle(this.state.jpDisplayStyle);
+
     Alert.alert(
-      'Your settings have been saved!',
-      'Return Home?',
+      'Are you ready?',
+      `Please verify the following settings:
+Player ID: ${playerID}
+Play Mode: ${this.state.playMode}`,
       [
         {
-          text: 'Not Yet',
+          text: 'Make Changes',
         },
         {
-          text: 'Yes Please!',
-          onPress: () => navigation.dispatch(NavigationActions.back()),
+          text: "Let's Play!",
+          onPress: async () => {
+            store.set('jpDisplayStyle')(this.state.jpDisplayStyle);
+            store.set('playMode')(this.state.playMode);
+            store.set('playerID')(playerID);
+            store.set('testIDGenerationBool')(this.state.isTest);
+            // TODO: log play mode
+            // logJpDisplayStyle(this.state.jpDisplayStyle);
+
+            await AsyncStorage.setItem('user_id', playerID);
+            await logger.initialize(
+              false /* debug? */,
+              false /* suppressConsoleOutput? */
+            );
+            // treat entire game as one page + one level
+            logger.recordPageLoad();
+            logger.recordLevelStart(0, `${playerID} ${this.state.playMode}`);
+            navigation.navigate('Home');
+          },
         },
       ],
       { cancelable: false }
     );
   };
 
-  _onClearData = () =>
-    Alert.alert(
-      'Are you sure you want to clear your data?',
-      'This cannot be undone.',
-      [
-        {
-          text: 'No',
-        },
-        {
-          text: 'Yes',
-          onPress: () => clearData(this.props.store),
-        },
-      ],
-      { cancelable: false }
-    );
-}
-
-function clearData(store) {
-  store.set('playerID')('');
-  store.set('jpDisplayStyle')('KANA');
-}
-
-function setTestBool(store, val) {
-  if (val == 0) {
-    store.set('testIDGenerationBool')(false);
-  } else {
-    store.set('testIDGenerationBool')(true);
-  }
-}
-
-function getTestBool(store) {
-  if (store.get('testIDGenerationBool') == false) {
-    return 0;
-  } else {
-    return 1;
-  }
-}
-
-function generateID(store) {
-  if (store.get('testIDGenerationBool')) {
-    store.set('playerID')(generateUserID());
-  } else {
-    store.set('playerID')(generateTestUserID());
-  }
+  // _onClearData = () =>
+  //   Alert.alert(
+  //     'Are you sure you want to clear your data?',
+  //     'This cannot be undone.',
+  //     [
+  //       {
+  //         text: 'No',
+  //       },
+  //       {
+  //         text: 'Yes',
+  //         onPress: () => clearData(this.props.store),
+  //       },
+  //     ],
+  //     { cancelable: false }
+  //   );
 }
 
 export default withStore(SettingsScreen);
@@ -233,6 +254,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    padding: 10,
   },
   inputBox: {
     backgroundColor: '#FFA37F',
@@ -245,6 +267,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 5,
     padding: 5,
+    flexGrow: 1,
   },
   picker: {
     marginTop: 10,

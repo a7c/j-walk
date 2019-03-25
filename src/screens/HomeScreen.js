@@ -25,12 +25,7 @@ import {
 } from 'react-native';
 
 import SentenceDatabase from 'src/async/SentenceDatabase';
-import getLogging from 'src/logging/Logging';
 import { withStore } from 'src/undux/GameStore';
-// TODO: switch this to non-test version during user study?
-import { generateTestUserID } from 'src/util/Util';
-
-const logger = getLogging();
 
 // TODO: persistent data
 
@@ -48,7 +43,7 @@ type Props = {
 };
 
 class HomeScreen extends React.Component<Props> {
-  _hasLoggedSession = false;
+  _isFirstLoad = true;
 
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Home',
@@ -57,30 +52,13 @@ class HomeScreen extends React.Component<Props> {
 
   componentDidMount() {
     const { store } = this.props;
-    let playerID = store.get('playerID');
-    if (playerID == null) {
-      playerID = generateTestUserID();
-      store.set('playerID')(playerID);
+
+    if (this._isFirstLoad) {
+      SentenceDatabase.db.load();
+      this.props.navigation.navigate('Settings');
+      this._isFirstLoad = false;
     }
-    if (!this._hasLoggedSession) {
-      this._initLogging(playerID);
-    }
-
-    SentenceDatabase.db.load();
   }
-
-  async _initLogging(playerID) {
-    console.log('try init logging');
-    await AsyncStorage.setItem('user_id', playerID);
-    await logger.initialize(
-      false /* debug? */,
-      false /* suppressConsoleOutput? */
-    );
-    // treat entire game as one page + one level
-    logger.recordPageLoad();
-    logger.recordLevelStart(0, this.props.store.get('jpDisplayStyle'));
-  }
-
   render() {
     const { navigate } = this.props.navigation;
 

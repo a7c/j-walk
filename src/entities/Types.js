@@ -19,10 +19,10 @@ export type Venue = {|
   vocab: ?string, // vocab id
 
   // for challenges
-  sentence: ?{
+  sentence: ?{|
     english: string,
     japanese: string,
-  },
+  |},
   // A word in the sentence that the player has already learned
   anchorWord: ?string,
   // The ID of a word in the sentence that is located at a nearby venue

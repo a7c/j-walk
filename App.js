@@ -15,20 +15,35 @@ import SettingsScreen from 'src/screens/SettingsScreen';
 import ChallengeClozeScreen from 'src/screens/ChallengeClozeScreen';
 import { Container } from 'src/undux/GameStore';
 
-type Props = {};
+type Props = {||};
 
-export default class App extends React.Component<Props> {
-  componentDidMount() {
-    Font.loadAsync({
+type State = {|
+  fontLoaded: boolean,
+|};
+
+export default class App extends React.Component<Props, State> {
+  state = {
+    fontLoaded: false,
+  };
+
+  async componentDidMount() {
+    await Font.loadAsync({
       // $FlowFixMe
       'kiwano-apple': require('assets/fonts/KIWANO-APPLE.otf'),
       krungthep: require('assets/fonts/krungthep-webfont.ttf'),
       // $FlowFixMe
       'toppan-bunkyu-midashi-gothic': require('assets/fonts/ToppanBunkyuMidashiGothic-ExtraBold.otf'),
     });
+    this.setState({
+      fontLoaded: true,
+    });
   }
 
   render() {
+    if (!this.state.fontLoaded) {
+      // TODO: better placeholder
+      return null;
+    }
     return (
       <Container>
         <AppNavigator />

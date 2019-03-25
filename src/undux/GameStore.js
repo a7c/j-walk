@@ -21,6 +21,7 @@ type State = {|
 
   learnedVocab: Set<string>, // vocab ids
   nearbyVenues: Set<string>, // venue ids
+  pastSentences: Set<string>, // japanese sentences
 
   jpDisplayStyle: JpDisplayStyleType,
   playerID: ?string,
@@ -40,27 +41,27 @@ const initialState: State = {
       私: {
         id: '私',
         word: '私',
-        reading: 'watashi',
+        reading: 'わたし',
         english: 'I; me',
       },
-      美味しい: {
-        id: '美味しい',
-        word: '美味しい',
-        reading: 'oishii',
-        english: 'tasty',
-      },
-      彼女: {
-        id: '彼女',
-        word: '彼女',
-        reading: 'kanojo',
-        english: 'she; her',
-      },
-      走る: {
-        id: '走る',
-        word: '走る',
-        reading: 'hashiru',
-        english: 'to run',
-      },
+      // 美味しい: {
+      //   id: '美味しい',
+      //   word: '美味しい',
+      //   reading: 'おいしい',
+      //   english: 'tasty',
+      // },
+      // 彼女: {
+      //   id: '彼女',
+      //   word: '彼女',
+      //   reading: 'かのじょ',
+      //   english: 'she; her',
+      // },
+      // 走る: {
+      //   id: '走る',
+      //   word: '走る',
+      //   reading: 'はしる',
+      //   english: 'to run',
+      // },
     })
   ),
 
@@ -68,15 +69,16 @@ const initialState: State = {
 
   // learnedVocab: new Set(),
   // TODO: this is test data
-  learnedVocab: new Set(['私', '美味しい', '彼女', '走る']),
-
+  // learnedVocab: new Set(['私', '美味しい', '彼女', '走る']),
+  learnedVocab: new Set(['私']),
   nearbyVenues: new Set(),
+  pastSentences: new Set(),
 
-  jpDisplayStyle: JpDisplayStyle.KANA,
+  jpDisplayStyle: JpDisplayStyle.ROMAJI,
   playerID: null,
   playerExp: 0,
   playMode: PlayMode.STATIONARY,
-  testIDGenerationBool: false,
+  testIDGenerationBool: true,
 };
 
 const { withStore, Container } = createConnectedStore(initialState);

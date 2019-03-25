@@ -41,7 +41,7 @@ export const fetchVocab = async (
       },
       []
     );
-    console.log(vocabEntries);
+    // console.log(vocabEntries);
     return vocabEntries;
   } catch (error) {
     console.error(error);
