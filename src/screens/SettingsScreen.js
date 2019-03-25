@@ -107,7 +107,7 @@ class SettingsScreen extends React.Component<Props, State> {
               <TouchableOpacity
                 onPress={() =>
                   this.setState({
-                    playerID: this.state.isTest
+                    playerID: !this.state.isTest
                       ? generateUserID()
                       : generateTestUserID(),
                   })
