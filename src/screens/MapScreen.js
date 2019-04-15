@@ -33,7 +33,11 @@ import {
 import AvatarMarker from 'src/components/map/AvatarMarker';
 import VenueMarker from 'src/components/map/VenueMarker';
 import Header from 'src/components/shared/Header';
-import { logAttachVocabToVenue, logPosition } from 'src/logging/LogAction';
+import {
+  logAttachVocabToVenue,
+  logPosition,
+  logSetVenueToChallenge,
+} from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 import { CHALLENGE_VENUE_RATIO } from 'src/util/Constants';
 import { cancellablePromise, getLevel } from 'src/util/Util';
@@ -257,6 +261,11 @@ class MapScreen extends React.Component<Props, State> {
       store.set('vocabById')(vocabById);
       store.set('vocabFromKeyword')(vocabFromKeyword);
 
+      // if player has < 4 words learned, don't generate a challenge
+      if (store.get('learnedVocab').size < 4) {
+        return;
+      }
+
       const nearbyVenuesArray = Array.from(nearbyVenues);
       const numChallenges =
         nearbyVenuesArray.reduce((acc, venueId) => {
@@ -349,6 +358,8 @@ class MapScreen extends React.Component<Props, State> {
             store.set('venuesById')(venuesById);
             pastSentences.add(sentence.japanese);
             store.set('pastSentences')(pastSentences);
+
+            logSetVenueToChallenge(vocabId1, challengeVenue.id, entry.english);
           });
         }
       }

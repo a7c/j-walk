@@ -275,6 +275,7 @@ export default function getLogging() {
     };
 
     this.recordEvent = function(actionId: number, actionDetail?: string) {
+      trace(`log: ${actionId} - ${actionDetail}`);
       if (_currentStatus != StatusEnum.STATUS_LEVEL_IN_PROGRESS) {
         if (!_debugMode) {
           if (_currentStatus == StatusEnum.STATUS_UNINITIALIZED) {

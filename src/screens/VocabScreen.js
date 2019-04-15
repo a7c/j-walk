@@ -25,6 +25,7 @@ import {
 
 import { StackNavigator, NavigationActions } from 'react-navigation';
 
+import { makeJpFormatter } from 'src/jp/Util';
 import { withStore } from 'src/undux/GameStore';
 
 type Props = {
@@ -37,6 +38,7 @@ type State = {
 };
 
 class VocabScreen extends React.Component<Props, State> {
+  _formatJp: string => string;
   static navigationOptions: NavigationScreenConfig<*> = {
     title: 'Vocab',
     header: { visible: false },
@@ -48,6 +50,8 @@ class VocabScreen extends React.Component<Props, State> {
     this.state = {
       // nothing yet
     };
+
+    this._formatJp = makeJpFormatter(props.store.get('jpDisplayStyle'));
   }
 
   render() {
@@ -73,7 +77,7 @@ class VocabScreen extends React.Component<Props, State> {
             if (vocab != undefined) {
               return (
                 <Text style={styles.item}>
-                  {vocab.id + ' = ' + vocab.english}
+                  {this._formatJp(vocab.reading) + ' = ' + vocab.english}
                 </Text>
               );
             } else {

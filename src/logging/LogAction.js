@@ -5,26 +5,28 @@
 import type { JpDisplayStyleType } from 'src/jp/Types';
 
 import getLogging from 'src/logging/Logging';
+import { getLevel } from 'src/util/Util';
 
 export const LogAction = Object.freeze({
-  LEARN_VOCAB: 1,
+  // LEARN_VOCAB: 1,
   LEARN_VOCAB_FROM_VENUE: 2,
   REVIEW_VOCAB: 3,
   PASS_CHALLENGE: 4,
-  COMPLETE_SENTENCE: 5,
+  // COMPLETE_SENTENCE: 5,
   GAIN_EXP: 6,
   LEVEL_UP: 7,
   TRACK_POSITION: 8,
   REVIEW_WRONG: 9,
   ATTACH_VOCAB_TO_VENUE: 10,
   SET_VENUE_TO_CHALLENGE: 11,
-  JP_DISPLAY_STYLE: 12,
+  // JP_DISPLAY_STYLE: 12,
+  FAIL_CHALLENGE: 13,
 });
 
-export const logLearnVocab = (vocabId: string) => {
-  const logger = getLogging();
-  logger.recordEvent(LogAction.LEARN_VOCAB, vocabId);
-};
+// export const logLearnVocab = (vocabId: string) => {
+//   const logger = getLogging();
+//   logger.recordEvent(LogAction.LEARN_VOCAB, vocabId);
+// };
 
 export const logLearnVocabFromVenue = (vocabId: string, venueId: string) => {
   const logger = getLogging();
@@ -41,15 +43,18 @@ export const logPassChallenge = (vocabId: string, venueId: string) => {
   logger.recordEvent(LogAction.PASS_CHALLENGE, `${vocabId};${venueId}`);
 };
 
-export const logCompleteSentence = (sentence: string) => {
-  const logger = getLogging();
-  logger.recordEvent(LogAction.COMPLETE_SENTENCE, sentence);
-};
+// export const logCompleteSentence = (sentence: string) => {
+//   const logger = getLogging();
+//   logger.recordEvent(LogAction.COMPLETE_SENTENCE, sentence);
+// };
 
 export const logGainExp = (previousExp: number, expGained: number) => {
   const logger = getLogging();
   logger.recordEvent(LogAction.GAIN_EXP, String(expGained));
-  /* TODO: log level up inside here */
+  const newLevel = getLevel(previousExp + expGained);
+  if (getLevel(previousExp) < newLevel) {
+    logger.recordEvent(LogAction.LEVEL_UP, `${newLevel}`);
+  }
 };
 
 export const logPosition = (lat: number, lng: number) => {
@@ -79,7 +84,12 @@ export const logSetVenueToChallenge = (
   );
 };
 
-export const logJpDisplayStyle = (style: JpDisplayStyleType) => {
+export const logFailChallenge = (vocabId: string, venueId: string) => {
   const logger = getLogging();
-  logger.recordEvent(LogAction.JP_DISPLAY_STYLE, style);
+  logger.recordEvent(LogAction.FAIL_CHALLENGE, `${vocabId};${venueId}`);
 };
+
+// export const logJpDisplayStyle = (style: JpDisplayStyleType) => {
+//   const logger = getLogging();
+//   logger.recordEvent(LogAction.JP_DISPLAY_STYLE, style);
+// };

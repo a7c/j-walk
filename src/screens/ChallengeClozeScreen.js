@@ -28,7 +28,11 @@ import Header from 'src/components/shared/Header';
 import { VenueState } from 'src/entities/Types';
 import { makeJpFormatter } from 'src/jp/Util';
 import getLogging from 'src/logging/Logging';
-import { logGainExp, logPassChallenge } from 'src/logging/LogAction';
+import {
+  logFailChallenge,
+  logGainExp,
+  logPassChallenge,
+} from 'src/logging/LogAction';
 import { withStore } from 'src/undux/GameStore';
 import { EXP_CHALLENGE } from 'src/util/Constants';
 import { getLevelAndExp, getTotalExpTnl, shuffleArray } from 'src/util/Util';
@@ -99,7 +103,6 @@ class ChallengeClozeScreen extends React.Component<Props, State> {
   _handleCorrectAnswer = () => {
     const { store } = this.props;
 
-    // TODO: log successful challenge
     logGainExp(store.get('playerExp'), EXP_CHALLENGE);
     store.set('playerExp')(store.get('playerExp') + EXP_CHALLENGE);
     logPassChallenge(this.state.testWordId, this.state.venueId);
@@ -120,6 +123,7 @@ class ChallengeClozeScreen extends React.Component<Props, State> {
   };
 
   _handleIncorrectAnswer = () => {
+    logFailChallenge(this.state.testWordId, this.state.venueId);
     Alert.alert('Incorrect!', "You didn't earn any EXP.", [
       { text: 'Aww...', onPress: this._returnToMap },
     ]);
